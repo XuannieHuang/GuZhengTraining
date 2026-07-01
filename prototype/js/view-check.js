@@ -51,7 +51,7 @@ function checkView(){
        <div class="hint2">點數字或 ✓ 核對 · 點<u>姓名</u>編輯學生</div>`;
   return `${newround}
     <div class="tabs">${tabs}</div>
-    <input class="searchbox" placeholder="🔍 搜尋學生姓名" value="${ui.search}" oninput="setSearch(this.value)">
+    <input class="searchbox" placeholder="🔍 搜尋學生姓名" value="${ui.search}" oninput="setSearch(this.value,event)" oncompositionend="setSearch(this.value,event)">
     ${head}
     ${rows}`;
 }
@@ -89,6 +89,7 @@ function toggleCheck(id){
   render();   // 重繪：勾選移到下方、取消勾選移回上方
 }
 function setTab(id){ ui.tab=id; ui.search=''; render(); }
-function setSearch(v){ ui.search=v;
-  // 局部重繪清單
+function setSearch(v,e){
+  ui.search=v;
+  if(e && e.isComposing) return;   // 輸入法（注音）組字中：先不重繪，等組完字再篩選
   render(); const inp=document.querySelector('.searchbox'); if(inp){inp.focus(); inp.setSelectionRange(v.length,v.length);} }

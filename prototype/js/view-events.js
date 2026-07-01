@@ -22,7 +22,7 @@ function eventsView(){
     </div>
     <div class="hint2">補登／改錯／退費 — 點任一筆<b>繳費</b>可改金額·日期·刪除·退費；點<b>租箏</b>可改租期·續租·還箏。</div>
     <div class="chips ev-filter">${fchip('all','全部')}${fchip('pay','💲 繳費')}${fchip('rent','🎻 租箏')}</div>
-    <input class="searchbox" placeholder="🔍 搜尋學生／承租人姓名" value="${ui.evSearch||''}" oninput="setEvSearch(this.value)">`;
+    <input class="searchbox" placeholder="🔍 搜尋學生／承租人姓名" value="${ui.evSearch||''}" oninput="setEvSearch(this.value,event)" oncompositionend="setEvSearch(this.value,event)">`;
   if(REPORTS.payments===null && f!=='rent'){ html+=`<div class="empty">載入繳費紀錄中…</div>`; return html; }
   if(!shown.length){ html+=`<div class="empty">沒有符合的事件</div>`; return html; }
   html+=`<div class="ev-list">`;
@@ -41,4 +41,4 @@ function eventsView(){
   return html;
 }
 function setEvFilter(v){ ui.evFilter=v; render(); }
-function setEvSearch(v){ ui.evSearch=v; render(); const inp=document.querySelector('.searchbox'); if(inp){ inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+function setEvSearch(v,e){ ui.evSearch=v; if(e && e.isComposing) return; render(); const inp=document.querySelector('.searchbox'); if(inp){ inp.focus(); inp.setSelectionRange(v.length,v.length); } }
