@@ -38,5 +38,8 @@
 .num{width:64px; text-align:center; font-size:23px; font-weight:700; padding:9px 2px;
   border:1px solid var(--line); border-radius:12px; background:#f8fafc;}
 .num.due{color:var(--red); border-color:#fecaca; background:#fff;}
+.signbtn{flex:0 0 auto; width:32px; height:38px; border:1px solid var(--line); border-radius:10px;
+  background:#f8fafc; font-size:19px; font-weight:700; color:#475569; cursor:pointer; line-height:1;}
+.signbtn:active{background:#e2e8f0;}
 .pay-btn{flex:0 0 auto; width:38px; height:38px; border-radius:10px; border:1px solid var(--line);
   background:#fff; font-size:18px; cursor:pointer;}

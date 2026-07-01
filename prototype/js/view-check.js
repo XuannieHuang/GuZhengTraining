@@ -33,7 +33,8 @@ function checkView(){
           return ms.length?`<div class="meta">${ms.join(' · ')}</div>`:''; })()}
       </div>
       <div class="numwrap"><label>已上</label>
-        <input class="num ${due?'due':''}" type="number" inputmode="numeric" value="${s.attended}" data-act="num" data-id="${s.id}"></div>
+        <input class="num ${due?'due':''}" type="number" inputmode="numeric" value="${s.attended}" data-act="num" data-id="${s.id}">
+        <button class="signbtn" data-act="sign" data-id="${s.id}" title="正負切換">±</button></div>
     </div>`;
   };
   // 未核對在上、已核對自動移到下方群組（待核對清單隨進度變短）
@@ -70,6 +71,11 @@ function bindCheck(){
     const act=el.getAttribute('data-act'), id=el.getAttribute('data-id');
     if(act==='chk') el.onclick=()=>toggleCheck(id);
     if(act==='edit') el.onclick=()=>openStudent(id);
+    if(act==='sign') el.onclick=()=>{                       // ± 正負切換（手機數字鍵盤沒負號）
+      const inp=document.querySelector(`.num[data-id="${id}"]`);
+      const v = -(parseInt((inp?inp.value:'0')||'0',10));
+      updateNum(id, v);
+    };
     if(act==='num'){
       el.onchange=()=>updateNum(id, el.value);
       el.onfocus=()=>el.select();
