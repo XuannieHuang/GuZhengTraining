@@ -1,0 +1,22 @@
+/* login.css — 登入頁 */
+.login{flex:1; display:flex; flex-direction:column; justify-content:center; padding:24px 22px; gap:14px;
+  background:linear-gradient(160deg,#0f766e 0%,#0b5d56 55%,#0f172a 100%);}
+.login-card{background:#fff; border-radius:20px; padding:28px 22px; display:flex; flex-direction:column; gap:12px;
+  box-shadow:0 14px 40px rgba(0,0,0,.25);}
+.login .logo{font-size:46px; text-align:center;}
+.login h2{text-align:center; margin:0; font-size:23px;}
+.login-card>p{text-align:center; color:var(--muted); font-size:13px; margin:0 0 8px;}
+.login-foot{text-align:center; color:rgba(255,255,255,.85); font-size:12px; line-height:1.6; margin:4px 0 0;}
+.login-card .btn{margin-top:4px;}
+.login-msg{text-align:center; font-size:13px;}
+.login-msg.err{color:#dc2626;}
+.login-msg.info{color:#64748b;}
+/* Google 登入按鈕 */
+.btn.google{display:flex; align-items:center; justify-content:center; gap:8px;
+  background:#fff; color:#1f2937; border:1px solid var(--line); font-weight:600;}
+.btn.google .g-ic{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px;
+  border-radius:50%; background:#fff; border:1px solid #e5e7eb; color:#4285F4; font-weight:800; font-size:13px;}
+.btn.google:active{background:#f8fafc;}
+/* 分隔線「或用帳號密碼」 */
+.login-or{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px; margin:2px 0;}
+.login-or::before,.login-or::after{content:""; flex:1; height:1px; background:var(--line);}

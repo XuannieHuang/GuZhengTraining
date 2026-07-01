@@ -1,0 +1,42 @@
+/* check.css — 上課核對頁專屬 */
+.newround{display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:#f0fdfa; border:1px solid #99f6e4; border-radius:12px; padding:8px 12px; margin:0 2px 8px;}
+.newround span{font-size:13px; color:#0f766e;}
+.newround b{font-size:15px;}
+.nr-btn{flex:0 0 auto; padding:7px 13px; border-radius:10px; border:1px solid var(--primary);
+  background:#fff; color:var(--primary); font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;}
+.nr-btn:active{background:#f0fdfa;}
+.tabs{display:flex; gap:8px; overflow-x:auto; padding:4px 2px 10px; scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:0 0 auto; padding:8px 14px; border-radius:999px; background:#fff; border:1px solid var(--line);
+  font-size:14px; font-weight:600; color:#475569; cursor:pointer;}
+.tab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.tab.orphan{border-color:#fcd34d; color:#b45309; background:#fffbeb;}
+.tab.orphan.active{background:#d97706; color:#fff; border-color:#d97706;}
+.hint2.warn{color:#b45309; font-weight:600;}
+.tab .cnt{font-size:11px; opacity:.8;}
+.searchbox{width:100%; padding:10px 14px; border:1px solid var(--line); border-radius:12px; font-size:15px;
+  margin-bottom:6px; background:#fff;}
+.checkbar{font-size:12px; color:var(--muted); text-align:right; margin:0 4px 8px;}
+.checkbar2{margin-left:auto; font-size:13px; color:var(--muted); font-weight:600; white-space:nowrap;}
+/* 已核對群組分隔標題 */
+.check-group{display:flex; align-items:center; gap:8px; margin:14px 4px 8px; font-size:12px;
+  font-weight:600; color:var(--muted);}
+.check-group::before,.check-group::after{content:""; flex:1; height:1px; background:var(--line);}
+.ename{cursor:pointer; border-bottom:1px dotted #94a3b8;}
+/* 學生列 */
+.srow{display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line);
+  border-radius:14px; padding:10px 10px; margin-bottom:8px;}
+.srow.checked{background:var(--green-bg); border-color:#bbf7d0;}
+.srow.due{background:var(--red-bg); border-color:#fecaca;}
+.srow.checked.due{background:#fff7ed; border-color:#fed7aa;}
+.chk{width:30px; height:30px; border-radius:50%; border:2px solid #cbd5e1; background:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:16px; color:transparent; flex:0 0 auto; cursor:pointer;}
+.chk.on{background:var(--green); border-color:var(--green); color:#fff;}
+.numwrap{display:flex; align-items:center; gap:4px; flex:0 0 auto;}
+.numwrap label{font-size:11px; color:var(--muted);}
+.num{width:64px; text-align:center; font-size:23px; font-weight:700; padding:9px 2px;
+  border:1px solid var(--line); border-radius:12px; background:#f8fafc;}
+.num.due{color:var(--red); border-color:#fecaca; background:#fff;}
+.pay-btn{flex:0 0 auto; width:38px; height:38px; border-radius:10px; border:1px solid var(--line);
+  background:#fff; font-size:18px; cursor:pointer;}

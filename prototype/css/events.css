@@ -1,0 +1,17 @@
+/* events.css — 事件修正頁 */
+.ev-top{display:flex; align-items:center; gap:10px; margin-bottom:4px;}
+.ev-top .section-title{margin:0;}
+.ev-back{border:1px solid var(--line); background:#fff; color:var(--primary);
+  border-radius:10px; padding:6px 12px; font-size:14px; font-weight:700; cursor:pointer;}
+.ev-filter{margin:8px 0 6px;}
+.ev-list{display:flex; flex-direction:column; gap:6px; margin-top:8px;}
+.ev-row{display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--line);
+  border-radius:12px; padding:10px 12px; cursor:pointer;}
+.ev-row:active{background:#f8fafc;}
+.ev-date{flex:0 0 46px; font-size:13px; color:var(--muted); font-weight:600;}
+.ev-mid{flex:1; min-width:0;}
+.ev-name{font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.ev-amt{flex:0 0 auto; font-size:15px; font-weight:800; color:var(--primary);}
+.ev-go{flex:0 0 auto; font-size:20px; color:var(--muted); font-weight:700;}
+/* 繳費編輯 modal：退費（全寬）與上方 取消/儲存 分開，避免黏在一起 */
+#peov .btn.block{margin-top:10px;}

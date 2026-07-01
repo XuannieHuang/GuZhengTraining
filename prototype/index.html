@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f766e">
+<title>教室管理</title>
+
+<!-- PWA：可加入主畫面、像 App 一樣開 -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="教室管理">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- 樣式：base 為共用，其餘各頁專屬 -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="css/todo.css">
+<link rel="stylesheet" href="css/check.css">
+<link rel="stylesheet" href="css/rental.css">
+<link rel="stylesheet" href="css/report.css">
+<link rel="stylesheet" href="css/events.css">
+<link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<!-- Supabase 函式庫 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- 連線 + 資料層（先載入） -->
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/export.js"></script>
+
+<!-- 各頁畫面 -->
+<script src="js/view-login.js"></script>
+<script src="js/view-todo.js"></script>
+<script src="js/view-check.js"></script>
+<script src="js/view-rental.js"></script>
+<script src="js/view-report.js"></script>
+<script src="js/view-events.js"></script>
+<script src="js/view-settings.js"></script>
+
+<!-- 各彈窗 -->
+<script src="js/modal-student.js"></script>
+<script src="js/modal-payment.js"></script>
+<script src="js/modal-payevent.js"></script>
+<script src="js/modal-rental.js"></script>
+<script src="js/modal-teacher.js"></script>
+<script src="js/modal-plan.js"></script>
+
+<!-- 外殼 + 啟動（最後載入） -->
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+/* report.css — 報表頁專屬 */
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px;}
+.stat{background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 12px;}
+.stat .v{font-size:26px; font-weight:800; color:var(--primary); line-height:1.1;}
+.stat .l{font-size:12px; color:var(--muted); margin-top:4px;}
+.month-nav{display:flex; align-items:center; justify-content:space-between; margin:2px 2px 10px; gap:8px;}
+.month-nav button{width:44px; padding:8px 0; border-radius:10px; border:1px solid var(--line);
+  background:#fff; font-size:18px; font-weight:700; color:var(--primary); cursor:pointer;}
+.month-nav .ml{font-size:16px; font-weight:700;}
+.rev-big{font-size:32px; font-weight:800; color:var(--primary);}
+.stat .v.red{color:#dc2626;}
+.stat .v.amber{color:#d97706;}
+.rpt-count{font-weight:800; color:var(--primary); font-size:17px;}
+.rpt-amt{font-weight:800; color:var(--primary); font-size:14px;}
+.rpt-amt-r{font-weight:800; color:var(--red); font-size:14px;}
+.rev-card{text-align:center;}
+.note-sub{display:block; font-size:12px;}
+.empty.pad20{padding:20px;}
+.empty.pad16{padding:16px; font-size:13px;}
+/* 各報表表格欄寬 */
+.rpt-t1 col:nth-child(1){width:55%;} .rpt-t1 col:nth-child(2){width:45%;}
+.rpt-t2 col:nth-child(1){width:34%;} .rpt-t2 col:nth-child(2){width:22%;} .rpt-t2 col:nth-child(3){width:44%;}
+.rpt-t4 col:nth-child(1){width:18%;} .rpt-t4 col:nth-child(2){width:30%;} .rpt-t4 col:nth-child(3){width:26%;} .rpt-t4 col:nth-child(4){width:26%;}
+.rpt-t5 col:nth-child(1){width:26%;} .rpt-t5 col:nth-child(2){width:24%;} .rpt-t5 col:nth-child(3){width:26%;} .rpt-t5 col:nth-child(4){width:24%;}
+.resume-btn{padding:5px 10px; border-radius:8px; border:1px solid var(--primary); background:#f0fdfa;
+  color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap;}
+.resume-btn:active{background:#ccfbf1;}
+/* 表頭置中（與待辦一致） */
+.rpt-t1 th, .rpt-t2 th, .rpt-t4 th, .rpt-t5 th{text-align:center;}
+/* 資料匯出 */
+.exp-row{display:flex; gap:10px; margin:0 2px;}
+.exp-btn{flex:1; padding:11px; border-radius:12px; border:1px solid var(--primary); background:#f0fdfa;
+  color:var(--primary); font-size:14px; font-weight:700; cursor:pointer;}
+.exp-btn:active{background:#ccfbf1;}

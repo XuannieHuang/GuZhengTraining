@@ -1,0 +1,25 @@
+# ── 機密：絕對不可進版控 ──
+client_secret_*.json
+*secret*.json
+# 含 Supabase 資料庫密碼
+supabase/設定步驟.md
+
+# ── 私人來源資料（學生個資）──
+*.xlsx
+~$*.xlsx
+
+# ── 含真實老師/學生姓名的種子與資料檔（本機保留、不進版控）──
+supabase/seed_students.sql
+supabase/rentals_active.sql
+supabase/gen_seed.py
+supabase/gen_rentals.py
+supabase/schema.sql
+規格文件.md
+
+# ── 本機工具設定 ──
+.claude/
+
+# ── OS ──
+Thumbs.db
+.DS_Store
+desktop.ini

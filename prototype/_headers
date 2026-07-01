@@ -1,0 +1,3 @@
+# Netlify：讓 App 檔案每次都重新驗證，重新部署後使用者一重整就拿到新版
+/*
+  Cache-Control: public, max-age=0, must-revalidate

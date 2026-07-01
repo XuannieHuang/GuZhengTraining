@@ -1,0 +1,19 @@
+/* settings.css — 設定頁專屬 */
+.setrow{cursor:pointer;}
+.setrow .edit{color:var(--primary); font-size:13px; font-weight:700; cursor:pointer; flex:0 0 auto; margin-left:12px;}
+.set-add{margin:2px 2px 8px;}
+.set-note{margin:6px 4px 14px;}
+.card.inactive{opacity:.6;}
+.avatar.off{background:#94a3b8;}
+.empty.sm{font-size:12px;}
+/* 區塊標題 + 新增按鈕同一排（新增動作放上方） */
+.set-head{display:flex; justify-content:space-between; align-items:center; margin:16px 4px 8px;}
+.set-head .section-title{margin:0;}
+.set-addbtn{padding:6px 12px; border-radius:10px; border:1px solid var(--primary); background:#f0fdfa;
+  color:var(--primary); font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;}
+.mgr{display:flex; align-items:center; gap:10px;}
+.tbtn{flex:0 0 auto; padding:7px 14px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; border:1.5px solid;}
+.tbtn.off{border-color:#fca5a5; color:var(--red); background:#fff;}
+.tbtn.on{border-color:var(--green); color:#fff; background:var(--green);}
+.avatar{width:34px; height:34px; border-radius:50%; background:var(--primary); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 auto;}

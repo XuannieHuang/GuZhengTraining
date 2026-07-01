@@ -1,0 +1,25 @@
+/* rental.css — 器材租借頁專屬 */
+.rtabs{display:flex; gap:8px; margin:2px 2px 10px;}
+.rtab{flex:1; padding:9px; border-radius:12px; border:1px solid var(--line); background:#fff;
+  font-size:14px; font-weight:700; color:#475569; cursor:pointer;}
+.rtab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+/* 狀態彩色標籤（無 emoji） */
+.rst{display:inline-block; font-size:14px; font-weight:700; padding:3px 10px; border-radius:999px; white-space:nowrap;}
+/* 字級對齊待辦：姓名15、日期17（同已上堂數）、狀態14（同方案） */
+.dtable.rtable td.sname{font-size:15px;}
+.dtable.rtable td.c{font-size:17px;}
+.rst-over{background:#fef2f2; color:#dc2626;}
+.rst-soon{background:#fffbeb; color:#d97706;}
+.rst-active{background:#f1f5f9; color:#475569;}
+.rst-done{background:#ecfdf5; color:#16a34a;}
+/* 清單欄寬、列可點、備註、到期日顏色 */
+.dtable.rtable col:nth-child(1){width:32%;}
+.dtable.rtable col:nth-child(2){width:22%;}
+.dtable.rtable col:nth-child(3){width:22%;}
+.dtable.rtable col:nth-child(4){width:24%;}
+.dtable.rtable tbody tr:not(.ghead){cursor:pointer;}
+.dtable.rtable td.sname .meta{font-size:13.5px; font-weight:400;}
+.due-over{color:#dc2626; font-weight:800;}
+.due-soon{color:#d97706; font-weight:800;}
+/* 續租按鈕（整排） */
+.renew-btn{width:100%; margin-bottom:8px;}
