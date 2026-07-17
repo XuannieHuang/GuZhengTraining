@@ -43,7 +43,7 @@ window.toggleTeacher=toggleTeacher; window.toggleShowInact=toggleShowInact;
 window.openTeacher=openTeacher; window.tfield=tfield; window.tInst=tInst; window.closeTeacher=closeTeacher; window.saveTeacher=saveTeacher;
 window.setRentTab=setRentTab; window.openRental=openRental; window.rfield=rfield;
 window.closeRental=closeRental; window.saveRental=saveRental; window.renewRental=renewRental;
-window.deleteRental=deleteRental;
+window.deleteRental=deleteRental; window.deleteRentalLog=deleteRentalLog;
 window.setReportMonth=setReportMonth; window.resumeStudent=resumeStudent;
 window.clearAllChecks=clearAllChecks; window.exportPayments=exportPayments; window.exportRentals=exportRentals; window.exportTodo=exportTodo;
 window.openEvents=openEvents; window.setEvFilter=setEvFilter; window.setEvSearch=setEvSearch;

@@ -127,5 +127,8 @@ body.modal-open #app main{overflow:hidden;}
 .histrow.pay{justify-content:space-between;}
 .histrow.rent{gap:10px;}
 .histrow>*{min-width:0; overflow-wrap:anywhere;}   /* 避免長字撐出橫向捲動 */
+.logdel{flex:0 0 auto; margin-left:auto; width:26px; height:26px; border-radius:8px; border:1px solid #fecaca;
+  background:#fef2f2; color:#dc2626; font-size:13px; font-weight:700; cursor:pointer; line-height:1;}
+.logdel:active{background:#fee2e2;}
 /* 多行備註欄 */
 .note-area{line-height:1.45; resize:vertical;}

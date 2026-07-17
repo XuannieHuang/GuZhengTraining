@@ -36,11 +36,12 @@ function renderRentalModal(){
       ${!m.isNew?`<div class="field"><label>狀態</label><div class="chips">${chips('status',['租賃中','已還箏'])}</div></div>`:''}
       ${!m.isNew && m.status==='已還箏'?`<div class="field"><label>還箏日</label>
         <input class="inp" type="date" value="${m.returned||today()}" onchange="ui.rmodal.returned=this.value"></div>`:''}
-      ${!m.isNew?`<div class="field"><label>租借歷史</label>
+      ${!m.isNew?`<div class="field"><label>租借歷史 <span class="sublabel">（每期一筆；✕ 可刪該期）</span></label>
         ${m.logs===null ? '<div class="meta">載入中…</div>'
-          : (m.logs.length ? m.logs.map(l=>`<div class="histrow rent">
+          : (m.logs.length ? m.logs.map((l,i)=>`<div class="histrow rent">
               <span class="t-muted nowrap">繳費 ${fmtDate(l.pay_date)}</span>
-              <span>${fmtDate2(l.start_date)} ～ ${fmtDate2(l.due_date)}</span></div>`).join('')
+              <span>${fmtDate2(l.start_date)} ～ ${fmtDate2(l.due_date)}</span>
+              <button class="logdel" onclick="deleteRentalLog('${l.id}')" title="刪除這一期">✕</button></div>`).join('')
             : '<div class="meta">尚無歷史</div>')}
       </div>`:''}
       ${!m.isNew && m.status==='租賃中'?`
@@ -96,6 +97,28 @@ async function renewRental(){
   const r=DB.rentals.find(x=>x.id===m.id); r.pay=payDate; r.start=newStart; r.due=newDue;
   sb.from('rental_logs').insert({ rental_id:m.id, billing:m.billing, pay_date:payDate, start_date:newStart, due_date:newDue }).then(({error})=>{ if(error) toast('歷史記錄失敗：'+error.message); });
   closeRental(); render(); toast('已續租一期，起租日／到期日已更新');
+}
+async function deleteRentalLog(logId){
+  const m=ui.rmodal; const logs=m.logs||[];
+  const log=logs.find(l=>l.id===logId); if(!log) return;
+  const isLatest = logs.length && logs[0].id===logId;   // logs 依 start_date 由新到舊，[0] 即當期
+  if(!confirm(isLatest && logs.length>1
+      ? `刪除這一期（${fmtDate2(log.start_date)}～${fmtDate2(log.due_date)}）？\n這是最新一期，租期會回到上一期。`
+      : `刪除這一期繳費紀錄（${fmtDate2(log.start_date)}～${fmtDate2(log.due_date)}）？`)) return;
+  const { error } = await sb.from('rental_logs').delete().eq('id',logId);
+  if(error){ toast('刪除失敗：'+error.message); return; }
+  // 刪的是當期且還有其他期 → 租借現況回到上一期
+  if(isLatest && logs.length>1){
+    const prev=logs[1];
+    const rec={ pay_date:prev.pay_date, start_date:prev.start_date, due_date:prev.due_date, billing:prev.billing||m.billing };
+    const { error:e2 } = await sb.from('rentals').update(rec).eq('id',m.id);
+    if(e2){ toast('回復上一期失敗：'+e2.message); }
+    const r=DB.rentals.find(x=>x.id===m.id); if(r) Object.assign(r,{ pay:prev.pay_date, start:prev.start_date, due:prev.due_date, billing:rec.billing });
+    Object.assign(m,{ pay:prev.pay_date, start:prev.start_date, due:prev.due_date, billing:rec.billing });
+  }
+  m.logs = logs.filter(l=>l.id!==logId);
+  renderRentalModal(); render();
+  toast('已刪除該期');
 }
 async function deleteRental(){
   const m=ui.rmodal; if(!m||m.isNew) return;
