@@ -1,17 +1,25 @@
 name: Supabase Keep-Alive
-# 每週一、四各 ping 一次 Supabase，讓它被視為「有活動」，
-# 避免免費方案閒置約 7 天被自動暫停。
-# 用的是 anon 公開金鑰（本來就在前端 config.js 裡，公開安全）。
+# 目的：
+#  1) 每週一、四 ping 一次 Supabase → 製造活動，避免免費方案閒置 7 天被暫停。
+#  2) 順便自動 push 一個心跳檔 → 讓 repo 一直有活動，避免 GitHub「60 天沒 commit 就停用排程」。
+# 用的是 anon 公開金鑰（本來就在前端 config.js，公開安全）。
+# 心跳 commit 帶 [skip ci]，不會觸發 Netlify/部署，也不會重跑本流程（本流程只吃 schedule / 手動）。
 
 on:
   schedule:
-    - cron: '23 4 * * 1,4'   # UTC 週一、週四 04:23（最長間隔 3~4 天，遠小於 7 天）
-  workflow_dispatch:          # 也可在 GitHub「Actions」頁手動按一下觸發
+    - cron: '23 4 * * 1,4'   # UTC 週一、週四 04:23（最長間隔 3~4 天）
+  workflow_dispatch:          # 也可在 GitHub「Actions」頁手動觸發
+
+permissions:
+  contents: write             # 讓流程能 push 心跳檔
 
 jobs:
-  ping:
+  keepalive:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Ping Supabase REST API
         run: |
           KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGZ3Y3VodWdycXdpYmdoaWlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2ODExNjAsImV4cCI6MjA5NzI1NzE2MH0.hzfgb98Kzr1cMEStNdnLchcRlTh7BTvVacGZDTbrw00"
@@ -20,7 +28,14 @@ jobs:
             -H "apikey: $KEY" \
             -H "Authorization: Bearer $KEY")
           echo "Supabase REST responded HTTP $CODE"
-          if [ "$CODE" = "000" ]; then
-            echo "連不上（可能已暫停或網路問題）"; exit 1
-          fi
+          if [ "$CODE" = "000" ]; then echo "連不上（可能已暫停或網路問題）"; exit 1; fi
           echo "OK — 已戳一下資料庫，重置閒置計時。"
+
+      - name: Commit heartbeat (keeps repo active)
+        run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/last-keepalive.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/last-keepalive.txt
+          git commit -m "chore: keep-alive $(date -u +%Y-%m-%d) [skip ci]" || { echo "nothing to commit"; exit 0; }
+          git push
