@@ -1,6 +1,19 @@
 /* view-events.js — 事件修正頁：查找並修正繳費／租箏紀錄（補登／改錯／退費／續租／還箏） */
 function openEvents(){ ui.screen='events'; if(REPORTS.payments===null) loadReportData(); render(); }
 function eventsView(){
+  const f=ui.evFilter||'all';
+  const fchip=(v,l)=>`<div class="chipbtn ${f===v?'sel':''}" onclick="setEvFilter('${v}')">${l}</div>`;
+  return `<div class="ev-top">
+      <button class="ev-back" onclick="go('report')">‹ 返回</button>
+      <div class="section-title">✎ 事件修正</div>
+    </div>
+    <div class="hint2">補登／改錯／退費 — 點任一筆<b>繳費</b>可改金額·日期·刪除·退費；點<b>租箏</b>可改租期·續租·還箏。</div>
+    <div class="chips ev-filter">${fchip('all','全部')}${fchip('pay','💲 繳費')}${fchip('rent','🎻 租箏')}</div>
+    <input class="searchbox" placeholder="🔍 搜尋學生／承租人姓名" value="${ui.evSearch||''}" oninput="setEvSearch(this.value)" oncompositionend="setEvSearch(this.value)">
+    <div id="evbody">${eventsBody()}</div>`;
+}
+// 清單主體：搜尋時只重繪這塊、不動搜尋框（同核對頁，避免手機注音被打斷／結果不更新）
+function eventsBody(){
   const f=ui.evFilter||'all', q=(ui.evSearch||'').trim();
   let items=[];
   if(f!=='rent' && REPORTS.payments){
@@ -15,17 +28,9 @@ function eventsView(){
   if(q) items=items.filter(i=>i.name.includes(q));
   items.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const cap=120, shown=items.slice(0,cap);
-  const fchip=(v,l)=>`<div class="chipbtn ${f===v?'sel':''}" onclick="setEvFilter('${v}')">${l}</div>`;
-  let html=`<div class="ev-top">
-      <button class="ev-back" onclick="go('report')">‹ 返回</button>
-      <div class="section-title">✎ 事件修正</div>
-    </div>
-    <div class="hint2">補登／改錯／退費 — 點任一筆<b>繳費</b>可改金額·日期·刪除·退費；點<b>租箏</b>可改租期·續租·還箏。</div>
-    <div class="chips ev-filter">${fchip('all','全部')}${fchip('pay','💲 繳費')}${fchip('rent','🎻 租箏')}</div>
-    <input class="searchbox" placeholder="🔍 搜尋學生／承租人姓名" value="${ui.evSearch||''}" oninput="setEvSearch(this.value,event)" oncompositionend="setEvSearch(this.value,null)">`;
-  if(REPORTS.payments===null && f!=='rent'){ html+=`<div class="empty">載入繳費紀錄中…</div>`; return html; }
-  if(!shown.length){ html+=`<div class="empty">沒有符合的事件</div>`; return html; }
-  html+=`<div class="ev-list">`;
+  if(REPORTS.payments===null && f!=='rent') return `<div class="empty">載入繳費紀錄中…</div>`;
+  if(!shown.length) return `<div class="empty">沒有符合的事件</div>`;
+  let html=`<div class="ev-list">`;
   shown.forEach(i=>{
     const click = i.kind==='pay' ? `openPayEvent('${i.id}')` : `openRental('${i.id}')`;
     const right = i.amount!=null
@@ -41,4 +46,9 @@ function eventsView(){
   return html;
 }
 function setEvFilter(v){ ui.evFilter=v; render(); }
-function setEvSearch(v,e){ ui.evSearch=v; if(e && e.isComposing) return; render(); const inp=document.querySelector('.searchbox'); if(inp){ inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+function setEvSearch(v){
+  ui.evSearch=v;
+  const body=document.getElementById('evbody');
+  if(body){ body.innerHTML=eventsBody(); }   // 只重繪清單、不碰輸入框（每次輸入都更新，不看不準的 isComposing）
+  else render();
+}

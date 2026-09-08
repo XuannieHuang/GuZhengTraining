@@ -70,7 +70,7 @@ function checkView(){
     </div>` : '';
   // 搜尋框放在老師頁籤「之上」，且為跨老師全域搜尋
   return `${newround}
-    <input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value,event)" oncompositionend="setSearch(this.value,null)">
+    <input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value)" oncompositionend="setSearch(this.value)">
     <div class="tabs">${tabs}</div>
     <div id="cbody">${checkBody()}</div>`;
 }
@@ -113,10 +113,12 @@ function toggleCheck(id){
   render();   // 重繪：勾選移到下方、取消勾選移回上方
 }
 function setTab(id){ ui.tab=id; ui.search=''; render(); }
-function setSearch(v,e){
+function setSearch(v){
   ui.search=v;
-  if(e && e.isComposing) return;   // 組字中的 input 才跳過；compositionend 傳 null 進來 → 一定更新（避免手機 isComposing 旗標不準）
+  // 每次輸入都重繪清單：只換 #cbody 內容、完全不碰搜尋框本身，
+  // 所以注音組字不會被打斷。不再用 isComposing 判斷（手機該旗標不準：
+  // 有些瀏覽器選完字的 input 仍回報 isComposing=true，會害結果永遠不更新）。
   const body=document.getElementById('cbody');
-  if(body){ body.innerHTML=checkBody(); bindCheck(); }  // 只重繪清單、不動搜尋框（不打斷注音、結果即時出現）
+  if(body){ body.innerHTML=checkBody(); bindCheck(); }
   else render();
 }
