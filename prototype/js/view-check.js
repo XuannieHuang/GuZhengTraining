@@ -70,7 +70,7 @@ function checkView(){
     </div>` : '';
   // 搜尋框放在老師頁籤「之上」，且為跨老師全域搜尋
   return `${newround}
-    <input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value,event)" oncompositionend="setSearch(this.value,event)">
+    <input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value,event)" oncompositionend="setSearch(this.value,null)">
     <div class="tabs">${tabs}</div>
     <div id="cbody">${checkBody()}</div>`;
 }
@@ -115,7 +115,7 @@ function toggleCheck(id){
 function setTab(id){ ui.tab=id; ui.search=''; render(); }
 function setSearch(v,e){
   ui.search=v;
-  if(e && e.isComposing) return;   // 輸入法（注音）組字中：先不篩選，等組完字再更新
+  if(e && e.isComposing) return;   // 組字中的 input 才跳過；compositionend 傳 null 進來 → 一定更新（避免手機 isComposing 旗標不準）
   const body=document.getElementById('cbody');
   if(body){ body.innerHTML=checkBody(); bindCheck(); }  // 只重繪清單、不動搜尋框（不打斷注音、結果即時出現）
   else render();
