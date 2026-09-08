@@ -8,6 +8,11 @@
 .nr-btn:active{background:#f0fdfa;}
 .tabs{display:flex; gap:8px; overflow-x:auto; padding:4px 2px 10px; scrollbar-width:none;}
 .tabs::-webkit-scrollbar{display:none;}
+/* 電腦（有滑鼠、無法觸控滑動）：老師頁籤改自動換行，全部一次看得到，不會卡住 */
+@media (hover: hover) and (pointer: fine) {
+  .tabs{ flex-wrap: wrap; overflow-x: visible; }
+  .tab{ flex: 0 0 auto; }
+}
 .tab{flex:0 0 auto; padding:8px 14px; border-radius:999px; background:#fff; border:1px solid var(--line);
   font-size:14px; font-weight:600; color:#475569; cursor:pointer;}
 .tab.active{background:var(--primary); color:#fff; border-color:var(--primary);}

@@ -112,7 +112,7 @@ async function payFromStudent(){
   sb.from('payments').select('*').eq('student_id',m.id).then(({data})=>{ if(ui.smodal&&ui.smodal.id===m.id){ ui.smodal.history=(data||[]).sort((a,b)=>(b.pay_date||'').localeCompare(a.pay_date||'')); renderStudentModal(); }});
   renderStudentModal();
 }
-function closeStudent(){ const h=document.getElementById('sov'); if(h) h.remove(); ui.smodal=null; document.body.classList.remove('modal-open'); }
+function closeStudent(){ const h=document.getElementById('sov'); if(h) h.remove(); ui.smodal=null; document.body.classList.remove('modal-open'); render(); }
 async function saveStudent(){
   const m=ui.smodal;
   if(!m.name || !m.name.trim()){ toast('請輸入姓名'); return; }
@@ -135,5 +135,5 @@ async function saveStudent(){
   }
   await applyPartnerLink(studentId, partnerId, prevPartner);   // 維持雙向配對一致
   if(!m.isNew && (prevTeacher||null)!==(m.t||null)) logTeacherChange(studentId, prevTeacher, m.t);  // 換老師 → 記異動
-  const created=m.isNew; closeStudent(); render(); toast(created?'已新增學生':'已更新學生');
+  const created=m.isNew; closeStudent(); toast(created?'已新增學生':'已更新學生');   // closeStudent 已重繪背景
 }
