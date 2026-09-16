@@ -46,20 +46,30 @@ function renderStudentModal(){
       ${cands.length ? `<div class="chips">${chips}</div>`
         : `<div class="meta">目前沒有可配對的同學，等對方建檔（同老師·雙人班）後再回來這裡配對。</div>`}</div>`;
   }
-  // 💲 記繳費 inline 表單（僅編輯既有學生；不另開彈窗）
+  // 💲 記繳費 inline 表單（新生建檔可一併登記首期；舊生直接記一筆）
   let payField='';
-  if(!m.isNew){
+  {
     if(!m.payForm) m.payForm={ plan:m.plan, periods:1, amt:m.amt||planPrice(m.inst,m.type,m.plan), date:today() };
     const pf=m.payForm, sess=planSessions(pf.plan)*pf.periods, total=(pf.amt||0)*pf.periods;
     const planOpts=m.inst==='琵琶'?['月繳','單堂']:['月繳','季繳','單堂'];
-    payField=`<div class="field paybox"><label>💲 記一筆繳費 <span class="sublabel">（確認後已上堂數自動 −${sess}）</span></label>
+    const payFields=`
       <div class="chips">${planOpts.map(p=>`<div class="chipbtn ${pf.plan===p?'sel':''}" onclick="pfld('plan','${p}')">${p}<span class="chip-sub"> ${planSessions(p)}堂</span></div>`).join('')}</div>
       <div class="chips">${[1,2,3].map(n=>`<div class="chipbtn ${pf.periods===n?'sel':''}" onclick="pfld('periods',${n})">${n} 期</div>`).join('')}</div>
       <input class="inp" type="number" inputmode="numeric" value="${pf.amt}" oninput="ui.smodal.payForm.amt=parseInt(this.value||'0',10)" placeholder="金額／期">
       <input class="inp" type="date" value="${pf.date}" onchange="ui.smodal.payForm.date=this.value">
-      <div class="summary"><span>合計（${pf.periods} 期）</span><b>$${total.toLocaleString()}</b></div>
-      <button class="btn primary block paybtn" onclick="payFromStudent()">確認記繳費</button>
-    </div>`;
+      <div class="summary"><span>合計（${pf.periods} 期）</span><b>$${total.toLocaleString()}</b></div>`;
+    if(m.isNew){
+      payField=`<div class="field paybox">
+        <label class="paytoggle"><input type="checkbox" ${m.payOn?'checked':''} onchange="ui.smodal.payOn=this.checked;renderStudentModal()"> 💲 一併登記首期繳費 <span class="sublabel">（首期不扣堂，已上維持 ${m.attended||0}）</span></label>
+        ${m.payOn?`${payFields}
+        <div class="hint">按下方【新增】即一併建檔＋登記首期繳費。</div>`:''}
+      </div>`;
+    } else {
+      payField=`<div class="field paybox"><label>💲 記一筆繳費 <span class="sublabel">（確認後已上堂數自動 −${sess}）</span></label>
+        ${payFields}
+        <button class="btn primary block paybtn" onclick="payFromStudent()">確認記繳費</button>
+      </div>`;
+    }
   }
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closeStudent()">
     <div class="sheet">
@@ -126,6 +136,16 @@ async function saveStudent(){
     const { data, error } = await sb.from('students').insert(rec).select().single();
     if(error){ toast('新增失敗：'+error.message); return; }
     DB.students.push(mapStudent(data)); studentId=data.id;
+    // 一併登記首期繳費（勾選時）：只記一筆繳費，不扣堂（新生從你填的已上堂數開始）
+    if(m.payOn && m.payForm && m.payForm.amt){
+      const pf=m.payForm;
+      const { error:perr } = await sb.from('payments').insert({ student_id:studentId, billing:pf.plan, periods:pf.periods, amount:pf.amt, pay_date:pf.date });
+      if(perr){ toast('學生已新增，但首期繳費記錄失敗：'+perr.message); }
+      else {
+        pushStudent(studentId, { last_pay_date:pf.date, last_pay_amount:pf.amt });
+        const s=DB.students.find(x=>x.id===studentId); if(s) Object.assign(s,{ pay:pf.date, amt:pf.amt });
+      }
+    }
   } else {
     const { error } = await sb.from('students').update(rec).eq('id',m.id);
     if(error){ toast('儲存失敗：'+error.message); return; }
@@ -135,5 +155,7 @@ async function saveStudent(){
   }
   await applyPartnerLink(studentId, partnerId, prevPartner);   // 維持雙向配對一致
   if(!m.isNew && (prevTeacher||null)!==(m.t||null)) logTeacherChange(studentId, prevTeacher, m.t);  // 換老師 → 記異動
-  const created=m.isNew; closeStudent(); toast(created?'已新增學生':'已更新學生');   // closeStudent 已重繪背景
+  const created=m.isNew, paid=m.isNew&&m.payOn&&m.payForm&&m.payForm.amt;
+  closeStudent();                                                    // closeStudent 已重繪背景
+  toast(created?(paid?'已新增學生並登記首期繳費（不扣堂）':'已新增學生'):'已更新學生');
 }

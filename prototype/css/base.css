@@ -77,6 +77,9 @@ nav button.active{color:var(--primary); font-weight:700;}
 .paybox .inp{margin-bottom:8px;}
 .paybox .summary{margin-bottom:8px;}
 .paybox .paybtn{margin-top:2px;}
+.paytoggle{display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; margin-bottom:0;}
+.paytoggle input{width:18px; height:18px; flex:0 0 auto; accent-color:var(--primary); cursor:pointer;}
+.paybox:has(.paytoggle input:checked) .paytoggle{margin-bottom:8px;}
 /* 彈窗開啟時鎖住背景捲動，避免捲到背景頁面 */
 body.modal-open #app main{overflow:hidden;}
 @keyframes up{from{transform:translateY(40px); opacity:.5;} to{transform:translateY(0); opacity:1;}}
