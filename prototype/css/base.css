@@ -1,9 +1,9 @@
 /* base.css — 變數、版面外殼、共用元件（卡片/徽章/表格/彈窗/按鈕） */
 :root{
-  --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
-  --primary:#0f766e; --primary-d:#0b5d56; --line:#e2e8f0;
+  --bg:#f5f6f7; --card:#ffffff; --ink:#22252b; --muted:#6c727a;
+  --primary:#4c9a5f; --primary-d:#3c8351; --line:#ececee;
   --red:#dc2626; --red-bg:#fef2f2; --green:#16a34a; --green-bg:#ecfdf5;
-  --amber:#d97706; --chip:#e2e8f0;
+  --amber:#d97706; --chip:#eef0f2; --meta:#5b626b; --fill:#f2f3f4; --tint:#eaf3ec;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 body{margin:0; font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
@@ -11,10 +11,13 @@ body{margin:0; font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sys
 #app{max-width:460px; margin:0 auto; min-height:100vh; background:var(--bg);
   display:flex; flex-direction:column; position:relative;}
 /* header */
-header{background:var(--primary); color:#fff; padding:14px 16px; position:sticky; top:0; z-index:10;
-  display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 4px rgba(0,0,0,.12);}
-header h1{font-size:17px; margin:0; font-weight:700; letter-spacing:.5px;}
-header .sub{font-size:12px; opacity:.85;}
+header{background:var(--card); color:var(--ink); padding:12px 16px; position:sticky; top:0; z-index:10;
+  border-bottom:1px solid var(--line); text-align:center;}
+header h1{font-size:18px; margin:0; font-weight:900; letter-spacing:-.01em;}
+header .sub{font-size:12.5px; color:var(--muted); font-weight:500; margin-top:3px;}
+header .ava{position:absolute; right:16px; top:50%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%;
+  background:var(--tint); color:var(--primary-d); display:grid; place-items:center; font-weight:700; font-size:13px;}
+header .tdot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--red); vertical-align:middle; margin:0 5px 0 1px;}
 /* content */
 main{flex:1; padding:12px 12px 84px; overflow-y:auto;}
 .section-title{font-size:13px; color:var(--muted); margin:14px 4px 8px; font-weight:600;}
@@ -26,8 +29,8 @@ main{flex:1; padding:12px 12px 84px; overflow-y:auto;}
 .meta{font-size:12px; color:var(--muted); margin-top:2px;}
 /* badges */
 .badge{font-size:11px; padding:2px 8px; border-radius:999px; background:var(--chip); color:#334155; white-space:nowrap;}
-.badge.j{background:#e0f2fe; color:#075985;} /* 季繳 */
-.badge.m{background:#fae8ff; color:#86198f;} /* 月繳 */
+.badge.j{background:var(--tint); color:#3f8a54;} /* 季繳 */
+.badge.m{background:#eef0f2; color:#5c636b;} /* 月繳 */
 .badge.pipa{background:#fef3c7; color:#92400e;}
 .badge.dual{background:#dcfce7; color:#166534;} /* 雙人組 */
 .badge.big{font-size:15px; padding:3px 13px; font-weight:700;}
@@ -38,28 +41,28 @@ main{flex:1; padding:12px 12px 84px; overflow-y:auto;}
 /* 共用表格（待辦 / 租借） */
 .dtable{width:100%; table-layout:fixed; border-collapse:collapse; background:#fff; border:1px solid var(--line);
   border-radius:12px; overflow:hidden; margin-bottom:6px;}
-.dtable th{font-size:15px; color:#334155; font-weight:700; text-align:left; padding:9px 5px;
-  background:#f1f5f9; border-bottom:1px solid var(--line); line-height:1.2;}
+.dtable th{font-size:15px; color:var(--muted); font-weight:700; text-align:left; padding:9px 5px;
+  background:var(--fill); border-bottom:1px solid var(--line); line-height:1.2;}
 .dtable td{padding:9px 5px; border-top:1px solid var(--line); font-size:14px; vertical-align:middle;
   overflow-wrap:break-word; word-break:break-word;}
 .dtable .c{text-align:center;}
-.dtable tr.ghead td{background:#ecfeff; color:var(--primary); font-weight:700; font-size:14px; padding:7px 8px; border-top:none;}
+.dtable tr.ghead td{background:var(--tint); color:var(--primary-d); font-weight:800; font-size:14px; padding:7px 8px; border-top:none;}
 .dtable tr.notified td{background:var(--green-bg);}
 .dtable .sname{font-weight:600;}
 .dtable .att{font-weight:800; color:var(--red); font-size:17px;}
 .dtable .badge{font-size:11px; padding:2px 6px;}
-.dtable .note{color:#475569; font-size:12.5px; line-height:1.35;}
+.dtable .note{color:var(--meta); font-size:12.5px; line-height:1.35;}
 /* 共用：新增列按鈕（核對 / 租借） */
 .addbar{display:flex; align-items:center; gap:10px; margin:0 2px 6px;}
-.addstu{padding:7px 14px; border-radius:10px; border:1px solid var(--primary); background:#f0fdfa;
-  color:var(--primary); font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;}
+.addstu{padding:8px 15px; border-radius:999px; border:1px solid var(--primary); background:var(--tint);
+  color:var(--primary-d); font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;}
 .hint2{font-size:11.5px; color:var(--muted); margin:0 4px 8px;}
 /* bottom nav */
 nav{position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:460px;
   background:#fff; border-top:1px solid var(--line); display:flex; z-index:20;}
 nav button{flex:1; border:none; background:none; padding:9px 0 11px; font-size:11px; color:var(--muted);
   display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer;}
-nav button .ic{font-size:20px;}
+nav button svg{width:23px; height:23px; stroke-width:1.7;}
 nav button.active{color:var(--primary); font-weight:700;}
 .navbadge{position:absolute; transform:translate(12px,-6px); background:var(--red); color:#fff;
   font-size:10px; min-width:16px; height:16px; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:0 4px;}
@@ -71,7 +74,7 @@ nav button.active{color:var(--primary); font-weight:700;}
 /* 日期欄位不需佔滿整行（依內容寬度即可） */
 .sheet input[type="date"]{width:auto; min-width:150px; max-width:100%;}
 /* 記繳費 inline 區塊（學生 modal 內，不另開彈窗） */
-.paybox{border:1px solid #99f6e4; background:#f0fdfa; border-radius:12px; padding:12px;}
+.paybox{border:1px solid #cfe8d6; background:var(--tint); border-radius:12px; padding:12px;}
 .paybox>label{margin-bottom:8px;}
 .paybox .chips{margin-bottom:8px;}
 .paybox .inp{margin-bottom:8px;}
@@ -103,8 +106,8 @@ body.modal-open #app main{overflow:hidden;}
 .preset{padding:6px 12px; border-radius:999px; background:#f1f5f9; border:1px solid var(--line);
   font-size:13px; color:#475569; cursor:pointer;}
 .preset b{color:var(--ink);}
-.summary{background:#f0fdfa; border:1px solid #99f6e4; border-radius:12px; padding:10px 12px;
-  font-size:14px; color:#0f766e; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;}
+.summary{background:var(--tint); border:1px solid #cfe8d6; border-radius:12px; padding:10px 12px;
+  font-size:14px; color:var(--primary-d); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;}
 .summary b{font-size:18px;}
 /* toast / 共用零碎 */
 #toast{position:fixed; bottom:96px; left:50%; transform:translateX(-50%); background:#0f172a; color:#fff;

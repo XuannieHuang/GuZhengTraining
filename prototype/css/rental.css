@@ -1,8 +1,12 @@
 /* rental.css — 器材租借頁專屬 */
-.rtabs{display:flex; gap:8px; margin:2px 2px 10px;}
-.rtab{flex:1; padding:9px; border-radius:12px; border:1px solid var(--line); background:#fff;
-  font-size:14px; font-weight:700; color:#475569; cursor:pointer;}
+.rtabs{display:flex; align-items:center; gap:8px; margin:2px 2px 12px;}
+.rtab{padding:9px 16px; border-radius:11px; border:1px solid transparent; background:var(--fill);
+  font-size:14px; font-weight:700; color:var(--muted); cursor:pointer; white-space:nowrap;}
 .rtab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+.raddmini{margin-left:auto; padding:9px 14px; border-radius:11px; border:1px solid var(--primary);
+  background:var(--card); color:var(--primary-d); font-size:13.5px; font-weight:700; cursor:pointer; white-space:nowrap;}
+/* 租借內頁：老師（自動帶出） */
+.tchrow .tchval{font-size:15px; font-weight:700; color:var(--primary-d);}
 /* 狀態彩色標籤（無 emoji） */
 .rst{display:inline-block; font-size:14px; font-weight:700; padding:3px 10px; border-radius:999px; white-space:nowrap;}
 /* 字級對齊待辦：姓名15、日期17（同已上堂數）、狀態14（同方案） */

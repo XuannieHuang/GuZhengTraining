@@ -24,6 +24,7 @@ function renderRentalModal(){
       <div class="handle"></div>
       <h3>${m.isNew?'新增器材租借':'器材租借'}</h3>
       <div class="field"><label>承租人姓名</label><input class="inp" value="${esc(m.name)}" oninput="ui.rmodal.name=this.value" placeholder="輸入學生姓名"></div>
+      ${(()=>{ const tn=rentalTeacher(m); return tn?`<div class="field tchrow"><label>老師 <span class="sublabel">（自動帶出）</span></label><div class="tchval">${tn}</div></div>`:''; })()}
       <div class="field"><label>樂器</label><div class="chips">${chips('inst',['古箏','琵琶'])}</div></div>
       <div class="field"><label>方案</label><div class="chips">${chips('billing',['月繳','季繳'])}</div></div>
       <div class="field"><label>繳費日 <span class="sublabel">（可早繳／晚繳，與起租日無關）</span></label>

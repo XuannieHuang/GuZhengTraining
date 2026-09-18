@@ -7,9 +7,8 @@ function rentalView(){
   let html=`<div class="rtabs">
       <button class="rtab ${!showReturned?'active':''}" onclick="setRentTab('active')">租賃中 ${activeCnt}</button>
       <button class="rtab ${showReturned?'active':''}" onclick="setRentTab('returned')">已還箏</button>
-    </div>
-    <div class="addbar"><button class="addstu" onclick="openRental(null)">＋ 新增租借</button></div>`;
-  if(!showReturned) html+=`<div class="hint2">點任一筆可續租／還箏（逾期／本月到期統計見上方標題）</div>`;
+      <button class="raddmini" onclick="openRental(null)">＋ 新增</button>
+    </div>`;
   if(!list.length){ html+=`<div class="empty">${showReturned?'沒有已還箏紀錄':'目前沒有租賃中的器材'}</div>`; return html; }
   html+=`<table class="dtable rtable">
     <colgroup><col><col><col><col></colgroup>
