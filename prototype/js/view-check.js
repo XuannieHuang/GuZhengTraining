@@ -25,24 +25,21 @@ function checkBody(){
   if(q){
     const matches = DB.students.filter(s=>isActive(s) && s.name.includes(q));
     if(!matches.length) return `<div class="empty">找不到「${q}」的在學/新生學生</div>`;
-    let html = `<div class="hint2">搜尋「${q}」：跨所有老師 ${matches.length} 位 · 直接改堂數／點<u>姓名</u>編輯</div>`;
+    let inner = '';
     ats.forEach(t=>{
       const grp = matches.filter(s=>s.t===t.id);
-      if(grp.length) html += `<div class="check-group">${t.name}${t.role}</div>` + grp.map(checkRowHtml).join('');
+      if(grp.length) inner += `<div class="check-group">${t.name}${t.role}</div>` + grp.map(checkRowHtml).join('');
     });
     const orph = matches.filter(s=>!ats.find(t=>t.id===s.t));
-    if(orph.length) html += `<div class="check-group">⚠ 未指派</div>` + orph.map(checkRowHtml).join('');
-    return html;
+    if(orph.length) inner += `<div class="check-group">⚠ 未指派</div>` + orph.map(checkRowHtml).join('');
+    return `<div class="hint2">搜尋「${q}」：跨所有老師 ${matches.length} 位 · 直接改堂數／點<u>姓名</u>編輯</div><div class="chk-card">${inner}</div>`;
   }
-  // 正常：單一老師分頁（未核對在上、已核對移到下方群組）
+  // 正常：單一老師分頁（未核對／已核對各一張表格卡）
   const isOrphan = ui.tab==='__orphan';
   const list = isOrphan ? orphans.slice() : DB.students.filter(s=>s.t===ui.tab && isActive(s));
   const checked = list.filter(s=>s.checked).length;
   const pending = list.filter(s=>!s.checked);
   const done    = list.filter(s=>s.checked);
-  let rows = pending.map(checkRowHtml).join('');
-  if(done.length) rows += `<div class="check-group">已核對 ${done.length}</div>` + done.map(checkRowHtml).join('');
-  if(!list.length) rows = `<div class="empty">${isOrphan?'沒有待指派的學生 🎉':'這位老師目前沒有上課中的學生'}</div>`;
   const head = isOrphan
     ? `<div class="hint2 warn">這些學生的老師已停用 — 請點<u>姓名</u>改指派給在職老師（改完就會離開此清單）</div>`
     : `<div class="addbar">
@@ -50,7 +47,13 @@ function checkBody(){
          <span class="checkbar2">已核對 ${checked}/${list.length}</span>
        </div>
        <div class="hint2">點數字或 ✓ 核對 · 點<u>姓名</u>編輯學生</div>`;
-  return head + rows;
+  if(!list.length) return head + `<div class="empty">${isOrphan?'沒有待指派的學生 🎉':'這位老師目前沒有上課中的學生'}</div>`;
+  const card = (title,cnt,rowsHtml,cls)=>`<div class="chk-card ${cls||''}"><div class="chk-chead">${title} <b>${cnt}</b></div>${rowsHtml}</div>`;
+  let body = pending.length
+    ? card('待核對', pending.length, pending.map(checkRowHtml).join(''))
+    : `<div class="chk-card"><div class="empty sm">這位老師都核對完成 🎉</div></div>`;
+  if(done.length) body += card('已核對', done.length, done.map(checkRowHtml).join(''), 'done');
+  return head + body;
 }
 function checkView(){
   const ats = activeTeachers();

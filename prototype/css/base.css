@@ -1,9 +1,10 @@
 /* base.css — 變數、版面外殼、共用元件（卡片/徽章/表格/彈窗/按鈕） */
 :root{
-  --bg:#eaecef; --card:#ffffff; --ink:#1f2228; --muted:#616872;
-  --primary:#4c9a5f; --primary-d:#3c8351; --line:#dcdfe3;
+  --bg:#ffffff; --card:#ffffff; --ink:#1f2228; --muted:#616872;
+  --primary:#4c9a5f; --primary-d:#3c8351; --line:#e6e8eb;
   --red:#dc2626; --red-bg:#fef2f2; --green:#16a34a; --green-bg:#ecfdf5;
-  --amber:#d97706; --chip:#e6e8eb; --meta:#565d67; --fill:#e8eaed; --tint:#e2efe7;
+  --amber:#d97706; --chip:#eceef1; --meta:#565d67; --fill:#eef0f2; --tint:#e2efe7;
+  --shadow-card:0 1px 2px rgba(20,25,30,.05), 0 8px 20px -10px rgba(20,25,30,.18);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 body{margin:0; font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
@@ -22,7 +23,7 @@ header .tdot{display:inline-block; width:8px; height:8px; border-radius:50%; bac
 main{flex:1; padding:12px 12px 84px; overflow-y:auto;}
 .section-title{font-size:13px; color:var(--muted); margin:14px 4px 8px; font-weight:600;}
 /* cards */
-.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:10px;}
+.card{background:var(--card); border:1px solid #eef0f2; border-radius:14px; padding:12px 14px; margin-bottom:10px; box-shadow:var(--shadow-card);}
 .row{display:flex; align-items:center; gap:10px;}
 .grow{flex:1; min-width:0;}
 .name{font-size:16px; font-weight:600;}
@@ -39,8 +40,8 @@ main{flex:1; padding:12px 12px 84px; overflow-y:auto;}
 .due{border-color:#fecaca; background:var(--red-bg);}
 .pill-red{background:var(--red); color:#fff; font-weight:700;}
 /* 共用表格（待辦 / 租借） */
-.dtable{width:100%; table-layout:fixed; border-collapse:collapse; background:#fff; border:1px solid var(--line);
-  border-radius:12px; overflow:hidden; margin-bottom:6px;}
+.dtable{width:100%; table-layout:fixed; border-collapse:collapse; background:#fff; border:1px solid #eef0f2;
+  border-radius:14px; overflow:hidden; margin-bottom:10px; box-shadow:var(--shadow-card);}
 .dtable th{font-size:15px; color:var(--muted); font-weight:700; text-align:left; padding:9px 5px;
   background:var(--fill); border-bottom:1px solid var(--line); line-height:1.2;}
 .dtable td{padding:9px 5px; border-top:1px solid var(--line); font-size:14px; vertical-align:middle;
