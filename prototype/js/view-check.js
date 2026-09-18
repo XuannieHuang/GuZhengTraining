@@ -21,10 +21,12 @@ function checkBody(){
   const ats = activeTeachers();
   const orphans = DB.students.filter(s=>isActive(s) && (!s.t || !ats.find(t=>t.id===s.t)));
   const q = (ui.search||'').trim();
-  // 全域搜尋：跨所有老師，依老師分組（換過老師的學生也一次找得到）
+  const totalChecked = DB.students.filter(s=>s.checked).length;   // 全域（所有老師）
+  const strip = totalChecked ? `<div class="nrstrip"><span>本梯已核對 <b>${totalChecked}</b> 位</span><span class="nr-clr" onclick="clearAllChecks()">清除·開始新一梯</span></div>` : '';
+  // 全域搜尋：跨所有老師，依老師分組
   if(q){
     const matches = DB.students.filter(s=>isActive(s) && s.name.includes(q));
-    if(!matches.length) return `<div class="empty">找不到「${q}」的在學/新生學生</div>`;
+    if(!matches.length) return strip + `<div class="empty">找不到「${q}」的在學/新生學生</div>`;
     let inner = '';
     ats.forEach(t=>{
       const grp = matches.filter(s=>s.t===t.id);
@@ -32,28 +34,23 @@ function checkBody(){
     });
     const orph = matches.filter(s=>!ats.find(t=>t.id===s.t));
     if(orph.length) inner += `<div class="check-group">⚠ 未指派</div>` + orph.map(checkRowHtml).join('');
-    return `<div class="hint2">搜尋「${q}」：跨所有老師 ${matches.length} 位 · 直接改堂數／點<u>姓名</u>編輯</div><div class="chk-card">${inner}</div>`;
+    return strip + `<div class="hint2">搜尋「${q}」：跨所有老師 ${matches.length} 位</div><div class="chk-card">${inner}</div>`;
   }
-  // 正常：單一老師分頁（未核對／已核對各一張表格卡）
-  const isOrphan = ui.tab==='__orphan';
-  const list = isOrphan ? orphans.slice() : DB.students.filter(s=>s.t===ui.tab && isActive(s));
-  const checked = list.filter(s=>s.checked).length;
+  // 待指派分頁（老師停用後的孤兒學生）
+  if(ui.tab==='__orphan'){
+    const rows = orphans.length ? orphans.map(checkRowHtml).join('') : `<div class="empty sm">沒有待指派的學生 🎉</div>`;
+    return strip + `<div class="hint2 warn">這些學生的老師已停用 — 請點<u>姓名</u>改指派給在職老師</div><div class="chk-card">${rows}</div>`;
+  }
+  // 正常：待核對／已核對兩張卡；＋新增縮進待核對卡頭
+  const list = DB.students.filter(s=>s.t===ui.tab && isActive(s));
   const pending = list.filter(s=>!s.checked);
   const done    = list.filter(s=>s.checked);
-  const head = isOrphan
-    ? `<div class="hint2 warn">這些學生的老師已停用 — 請點<u>姓名</u>改指派給在職老師（改完就會離開此清單）</div>`
-    : `<div class="addbar">
-         <button class="addstu" onclick="openStudent(null)">＋ 新增學生（${teacherName(ui.tab)}）</button>
-         <span class="checkbar2">已核對 ${checked}/${list.length}</span>
-       </div>
-       <div class="hint2">點數字或 ✓ 核對 · 點<u>姓名</u>編輯學生</div>`;
-  if(!list.length) return head + `<div class="empty">${isOrphan?'沒有待指派的學生 🎉':'這位老師目前沒有上課中的學生'}</div>`;
-  const card = (title,cnt,rowsHtml,cls)=>`<div class="chk-card ${cls||''}"><div class="chk-chead">${title} <b>${cnt}</b></div>${rowsHtml}</div>`;
-  let body = pending.length
-    ? card('待核對', pending.length, pending.map(checkRowHtml).join(''))
-    : `<div class="chk-card"><div class="empty sm">這位老師都核對完成 🎉</div></div>`;
-  if(done.length) body += card('已核對', done.length, done.map(checkRowHtml).join(''), 'done');
-  return head + body;
+  const pendRows = pending.length ? pending.map(checkRowHtml).join('')
+                 : `<div class="empty sm">${list.length?'都核對完成 🎉':'這位老師目前沒有上課中的學生'}</div>`;
+  let body = `<div class="chk-card"><div class="chk-chead"><span class="chk-ttl">待核對 <b>${pending.length}</b></span>`
+           + `<button class="chk-add" onclick="openStudent(null)">＋ 新增</button></div>${pendRows}</div>`;
+  if(done.length) body += `<div class="chk-card done"><div class="chk-chead"><span class="chk-ttl">已核對 <b>${done.length}</b></span></div>${done.map(checkRowHtml).join('')}</div>`;
+  return strip + body;
 }
 function checkView(){
   const ats = activeTeachers();
@@ -66,14 +63,8 @@ function checkView(){
     return `<div class="tab ${!searching && ui.tab===t.id?'active':''}" onclick="setTab('${t.id}')">${t.name}<span class="cnt"> ${cnt}</span></div>`;
   }).join('');
   if(orphans.length) tabs += `<div class="tab orphan ${!searching && ui.tab==='__orphan'?'active':''}" onclick="setTab('__orphan')">⚠ 待指派<span class="cnt"> ${orphans.length}</span></div>`;
-  const totalChecked = DB.students.filter(s=>s.checked).length;
-  const newround = totalChecked ? `<div class="newround">
-      <span>本梯已核對 <b>${totalChecked}</b> 位</span>
-      <button class="nr-btn" onclick="clearAllChecks()">清除全部 · 開始新一梯</button>
-    </div>` : '';
-  // 搜尋框放在老師頁籤「之上」，且為跨老師全域搜尋
-  return `${newround}
-    <input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value)" oncompositionend="setSearch(this.value)">
+  // 搜尋框在老師頁籤之上（跨老師全域搜尋）；本梯清除改由 cbody 內的細長條處理
+  return `<input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value)" oncompositionend="setSearch(this.value)">
     <div class="tabs">${tabs}</div>
     <div id="cbody">${checkBody()}</div>`;
 }
