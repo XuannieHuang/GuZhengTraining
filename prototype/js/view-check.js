@@ -63,10 +63,18 @@ function checkView(){
     return `<div class="tab ${!searching && ui.tab===t.id?'active':''}" onclick="setTab('${t.id}')">${t.name}<span class="cnt"> ${cnt}</span></div>`;
   }).join('');
   if(orphans.length) tabs += `<div class="tab orphan ${!searching && ui.tab==='__orphan'?'active':''}" onclick="setTab('__orphan')">⚠ 待指派<span class="cnt"> ${orphans.length}</span></div>`;
-  // 搜尋框在老師頁籤之上（跨老師全域搜尋）；本梯清除改由 cbody 內的細長條處理
-  return `<input class="searchbox" placeholder="🔍 搜尋學生姓名（跨所有老師）" value="${ui.search||''}" oninput="setSearch(this.value)" oncompositionend="setSearch(this.value)">
-    <div class="tabs">${tabs}</div>
-    <div id="cbody">${checkBody()}</div>`;
+  // 搜尋收成放大鏡 icon 放在老師頁籤前面，點了才展開成搜尋框（不另佔一欄）
+  const searchOpen = ui.searchOpen || searching;
+  const topRow = searchOpen
+    ? `<div class="tabsrow">
+         <button class="srch-ic on" onclick="closeSearch()" title="關閉搜尋">✕</button>
+         <input class="searchbox2" placeholder="學生姓名" value="${ui.search||''}" oninput="setSearch(this.value)" oncompositionend="setSearch(this.value)">
+       </div>`
+    : `<div class="tabsrow">
+         <button class="srch-ic" onclick="openSearch()" title="搜尋學生">🔍</button>
+         <div class="tabs">${tabs}</div>
+       </div>`;
+  return `${topRow}<div id="cbody">${checkBody()}</div>`;
 }
 async function clearAllChecks(){
   const n=DB.students.filter(s=>s.checked).length;
@@ -106,7 +114,9 @@ function toggleCheck(id){
   pushStudent(id, { checked:s.checked });
   render();   // 重繪：勾選移到下方、取消勾選移回上方
 }
-function setTab(id){ ui.tab=id; ui.search=''; render(); }
+function setTab(id){ ui.tab=id; ui.search=''; ui.searchOpen=false; render(); }
+function openSearch(){ ui.searchOpen=true; render(); const i=document.querySelector('.searchbox2'); if(i) i.focus(); }
+function closeSearch(){ ui.searchOpen=false; ui.search=''; render(); }
 function setSearch(v){
   ui.search=v;
   // 每次輸入都重繪清單：只換 #cbody 內容、完全不碰搜尋框本身，

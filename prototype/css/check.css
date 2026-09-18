@@ -22,6 +22,14 @@
 .tab .cnt{font-size:11px; opacity:.8;}
 .searchbox{width:100%; padding:12px 14px; border:1px solid transparent; border-radius:12px; font-size:15px;
   margin-bottom:10px; background:var(--fill);}
+/* 搜尋收成放大鏡 icon，與老師頁籤同一排；點開才展成搜尋框 */
+.tabsrow{display:flex; align-items:center; gap:8px; padding:4px 2px 10px;}
+.tabsrow .tabs{flex:1 1 auto; min-width:0; padding:0;}
+.srch-ic{flex:0 0 auto; width:40px; height:38px; border-radius:11px; border:1px solid var(--line); background:var(--fill);
+  display:grid; place-items:center; font-size:16px; color:var(--muted); cursor:pointer;}
+.srch-ic.on{border-color:var(--primary); color:var(--primary-d); background:var(--card);}
+.searchbox2{flex:1 1 auto; min-width:0; padding:10px 12px; border:1px solid transparent; border-radius:11px;
+  background:var(--fill); font-size:15px; color:var(--ink);}
 .checkbar{font-size:12px; color:var(--muted); text-align:right; margin:0 4px 8px;}
 .checkbar2{margin-left:auto; font-size:13px; color:var(--muted); font-weight:600; white-space:nowrap;}
 /* 已核對群組分隔標題 */

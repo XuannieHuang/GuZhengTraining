@@ -33,6 +33,7 @@ function go(s){ ui.screen=s; render(); if(s==='report' && REPORTS.payments===nul
 
 /* ---------- 全域匯出（供 inline onclick 使用） ---------- */
 window.go=go; window.doLogin=doLogin; window.setTab=setTab; window.setSearch=setSearch;
+window.openSearch=openSearch; window.closeSearch=closeSearch;
 window.openPay=openPay; window.closePay=closePay; window.confirmPay=confirmPay;
 window.setPlan=setPlan; window.setPeriods=setPeriods; window.logout=logout; window.ui=ui;
 window.googleLogin=googleLogin; window.addAllowed=addAllowed; window.removeAllowedEmail=removeAllowedEmail;
