@@ -1,9 +1,9 @@
 /* base.css — 變數、版面外殼、共用元件（卡片/徽章/表格/彈窗/按鈕） */
 :root{
-  --bg:#f5f6f7; --card:#ffffff; --ink:#22252b; --muted:#6c727a;
-  --primary:#4c9a5f; --primary-d:#3c8351; --line:#ececee;
+  --bg:#eaecef; --card:#ffffff; --ink:#1f2228; --muted:#616872;
+  --primary:#4c9a5f; --primary-d:#3c8351; --line:#dcdfe3;
   --red:#dc2626; --red-bg:#fef2f2; --green:#16a34a; --green-bg:#ecfdf5;
-  --amber:#d97706; --chip:#eef0f2; --meta:#5b626b; --fill:#f2f3f4; --tint:#eaf3ec;
+  --amber:#d97706; --chip:#e6e8eb; --meta:#565d67; --fill:#e8eaed; --tint:#e2efe7;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 body{margin:0; font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
