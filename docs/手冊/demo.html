@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>操作手冊示範畫面</title>
+<!--
+  只給「產生操作手冊截圖」用的示範頁。
+  - 載入真實的 App 樣式與程式，但資料全是假的（公開 repo，不能放真實學生姓名）
+  - 不在 prototype/ 底下，所以不會被部署上線
+  - 用法：py tools/shoot_manual.py（會自己開 server 並截圖）
+        手動看：py tools/devserver.py 5501 . 然後開 /docs/手冊/demo.html?v=check
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="/prototype/css/base.css">
+<link rel="stylesheet" href="/prototype/css/login.css">
+<link rel="stylesheet" href="/prototype/css/todo.css">
+<link rel="stylesheet" href="/prototype/css/check.css">
+<link rel="stylesheet" href="/prototype/css/rental.css">
+<link rel="stylesheet" href="/prototype/css/report.css">
+<link rel="stylesheet" href="/prototype/css/events.css">
+<link rel="stylesheet" href="/prototype/css/settings.css">
+<style>
+  /* 無頭 Chrome 在 Windows 的視窗最小寬度是 500px，--window-size 更小會被忽略。
+     這裡把版面鎖成手機寬度；transform 讓 position:fixed 的底部導覽也被關進這個盒子裡，
+     截圖後再由 tools/shoot_manual.py 把右邊多餘的部分裁掉。 */
+  html { width: var(--shot-w, 390px); transform: scale(1); transform-origin: top left; }
+  html, body { overflow-x: hidden; }
+
+  /* 操作標註：紅框 ＋ 編號圓圈（由 mock.js 的 ?cal= 參數畫上去） */
+  .cal-ring { position: absolute; border: 3px solid #e11d48; border-radius: 10px;
+              box-shadow: 0 0 0 3px rgba(225,29,72,.18); pointer-events: none; z-index: 9998; }
+  .cal-num  { position: absolute; width: 26px; height: 26px; border-radius: 50%;
+              background: #e11d48; color: #fff; font: 700 15px/26px "Noto Sans TC", sans-serif;
+              text-align: center; z-index: 9999; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/prototype/js/config.js"></script>
+<script src="/prototype/js/data.js"></script>
+<script src="/prototype/js/export.js"></script>
+<script src="/prototype/js/view-login.js"></script>
+<script src="/prototype/js/view-todo.js"></script>
+<script src="/prototype/js/view-check.js"></script>
+<script src="/prototype/js/view-rental.js"></script>
+<script src="/prototype/js/view-report.js"></script>
+<script src="/prototype/js/view-events.js"></script>
+<script src="/prototype/js/view-settings.js"></script>
+<script src="/prototype/js/modal-student.js"></script>
+<script src="/prototype/js/modal-payment.js"></script>
+<script src="/prototype/js/modal-payevent.js"></script>
+<script src="/prototype/js/modal-rental.js"></script>
+<script src="/prototype/js/modal-teacher.js"></script>
+<script src="/prototype/js/modal-plan.js"></script>
+<script src="/prototype/js/app.js"></script>
+<script src="mock.js"></script>
+</body>
+</html>
