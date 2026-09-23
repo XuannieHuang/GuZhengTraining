@@ -111,8 +111,6 @@ async function loadReportData(){
 function pushStudent(id, patch){
   sb.from('students').update(patch).eq('id',id).then(({error})=>{ if(error) toast('儲存失敗：'+error.message); });
 }
-function save(){ /* 雲端版：各動作各自寫回，這裡留空 */ }
-
 /* ---------- 老師異動歷史：學生換老師時記一筆 ---------- */
 function logTeacherChange(studentId, fromId, toId){
   sb.from('teacher_changes').insert({ student_id:studentId, from_teacher_id:fromId||null, to_teacher_id:toId||null })
