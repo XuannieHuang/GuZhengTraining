@@ -29,8 +29,15 @@
   html { width: var(--shot-w, 390px); transform: scale(1); transform-origin: top left; }
   html, body { overflow-x: hidden; }
 
+  /* 彈窗有 .2s 的上滑動畫，量位置時若還在動，紅框會畫歪 → 截圖頁一律關掉動畫 */
+  *, *::before, *::after {
+    animation-duration: 0s !important; animation-delay: 0s !important;
+    transition: none !important;
+  }
+
   /* 操作標註：紅框 ＋ 編號圓圈（由 mock.js 的 ?cal= 參數畫上去） */
-  .cal-ring { position: absolute; border: 3px solid #e11d48; border-radius: 10px;
+  .cal-ring { position: absolute; box-sizing: border-box;
+              border: 3px solid #e11d48; border-radius: 10px;
               box-shadow: 0 0 0 3px rgba(225,29,72,.18); pointer-events: none; z-index: 9998; }
   .cal-num  { position: absolute; width: 26px; height: 26px; border-radius: 50%;
               background: #e11d48; color: #fff; font: 700 15px/26px "Noto Sans TC", sans-serif;

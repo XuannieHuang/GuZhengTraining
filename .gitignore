@@ -35,3 +35,6 @@ data/
 # ── Python 編譯快取 ──
 __pycache__/
 *.pyc
+
+# 轉檔預覽用的暫存 PDF
+_preview.pdf

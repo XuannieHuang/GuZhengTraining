@@ -107,14 +107,21 @@
     if (act && ACTIONS[act]) { ACTIONS[act](); if (!m && !/suggest|nonstudent|firstpay/.test(act)) render(); }
 
     drawCallouts(q.get('cal'));
+    watchLayout();
     document.documentElement.dataset.ready = '1';   // 截圖腳本等這個旗標
   }
 
-  /* 在指定元素上畫紅框與編號，讓截圖直接帶「點這裡」的標註 */
+  /* 在指定元素上畫紅框與編號，讓截圖直接帶「點這裡」的標註。
+     位置必須在版面「穩定之後」才量：網頁字體是非同步載入的，到位前後高度會變；
+     而無頭 Chrome 的 --virtual-time-budget 會讓 setTimeout 幾乎立刻觸發，
+     所以不能靠延遲，改成用 ResizeObserver 一有變動就重畫。 */
+  let calSpec = null;
+
   function drawCallouts(spec) {
+    if (spec !== undefined) calSpec = spec;
     document.querySelectorAll('.cal-ring,.cal-num').forEach(n => n.remove());
-    if (!spec) return;
-    spec.split(';').forEach((sel, i) => {
+    if (!calSpec) return;
+    calSpec.split(';').forEach((sel, i) => {
       sel = sel.trim(); if (!sel) return;
       const el = document.querySelector(sel);
       if (!el) { console.warn('標註找不到元素：' + sel); return; }
@@ -122,12 +129,26 @@
       const x = r.left + scrollX, y = r.top + scrollY;
       const ring = document.createElement('div');
       ring.className = 'cal-ring';
-      ring.style.cssText = `left:${x - 4}px; top:${y - 4}px; width:${r.width + 2}px; height:${r.height + 2}px;`;
+      ring.style.cssText = `left:${x - 3}px; top:${y - 3}px; width:${r.width + 6}px; height:${r.height + 6}px;`;
       const num = document.createElement('div');
       num.className = 'cal-num'; num.textContent = i + 1;
-      num.style.cssText = `left:${x - 17}px; top:${y - 13}px;`;
+      num.style.cssText = `left:${x - 16}px; top:${y - 14}px;`;
       document.body.append(ring, num);
     });
+  }
+
+  /* 只要畫面內容的尺寸變了（字體載入、彈窗重繪…）就重畫標註。
+     觀察 #app 與彈窗容器而不是 body —— 標註本身是絕對定位，不會觸發它們變動。 */
+  const ro = new ResizeObserver(() => drawCallouts());
+  function watchLayout() {
+    ro.disconnect();
+    ['#app', '#ov', '#sov', '#rov'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) ro.observe(el);
+    });
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => drawCallouts()).catch(() => {});
   }
 
   // boot() 是非同步的，可能在我們之後才把畫面蓋掉 → 畫兩次
