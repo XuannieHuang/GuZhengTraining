@@ -15,7 +15,8 @@ function mapTeacher(r){ return { id:r.id, name:r.name, role:r.role, inst:r.instr
 function activeTeachers(){ return DB.teachers.filter(t=>t.active!==false); }
 function mapStudent(r){ return { id:r.id, t:r.teacher_id, name:r.name, inst:r.instrument, type:r.class_type,
   plan:r.plan, attended:r.attended||0, pay:r.last_pay_date, amt:r.last_pay_amount, status:r.status,
-  contact:r.contact||'', partner:r.partner_id||null, note:r.note||'', checked:!!r.checked, notified:!!r.notified }; }
+  contact:r.contact||'', partner:r.partner_id||null, note:r.note||'', checked:!!r.checked, notified:!!r.notified,
+  deleted:!!r.deleted_at }; }
 function studentName(id){ const s=DB.students.find(x=>x.id===id); return s?s.name:''; }
 function mapRental(r){ return { id:r.id, sid:r.student_id, name:r.renter_name, inst:r.instrument, billing:r.billing,
   pay:r.pay_date, start:r.start_date, due:r.due_date, status:r.status, returned:r.returned_date||null, note:r.note||'' }; }
@@ -63,7 +64,7 @@ async function loadAll(){
   ]);
   if(tRes.error) throw tRes.error;
   DB.teachers = (tRes.data||[]).map(mapTeacher);
-  DB.students = (sRes.data||[]).map(mapStudent);
+  DB.students = (sRes.data||[]).map(mapStudent).filter(s=>!s.deleted);   // 註記刪除的不載入
   DB.rentals  = (rRes.data||[]).map(mapRental);
   PLANS = pRes.data||[];
   const g=(b)=>{ const p=PLANS.find(p=>p.instrument==='古箏'&&p.class_type==='個人'&&p.billing===b); return p?p.price:null; };

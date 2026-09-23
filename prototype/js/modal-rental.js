@@ -14,6 +14,35 @@ function openRental(id){
     });
   }
 }
+/* 承租人＝學生名單挑選：存進資料庫的一律是「系統記的姓名」，不是當下打的字。
+   避免租借與學生斷鏈（差一個字就連不上，畫面又看不出來）。 */
+function renterInput(v){
+  ui.rmodal.name=v; ui.rmodal.sid=null;              // 手動改字就先解除連結
+  // 只換輸入框以外的區塊（注音組字才不會被打斷）
+  const box=document.getElementById('rsug');   if(box) box.innerHTML=renterSug();
+  const tch=document.getElementById('rtch');   if(tch) tch.innerHTML=renterTeacherRow();
+}
+function pickRenter(id){
+  const s=DB.students.find(x=>x.id===id); if(!s) return;
+  ui.rmodal.sid=s.id; ui.rmodal.name=s.name;          // 以系統記的名稱為主
+  renderRentalModal();
+}
+function renterTeacherRow(){
+  const tn=rentalTeacher(ui.rmodal);
+  return tn?`<div class="field tchrow"><label>老師 <span class="sublabel">（自動帶出）</span></label><div class="tchval">${tn}</div></div>`:'';
+}
+function renterSug(){
+  const m=ui.rmodal, q=(m.name||'').trim();
+  if(m.sid){
+    const s=DB.students.find(x=>x.id===m.sid);
+    return s?`<div class="rlink ok">已連結學生：${s.name}${teacherName(s.t)?' · '+teacherName(s.t):''}</div>`:'';
+  }
+  if(!q) return '';
+  const hit=DB.students.filter(s=>s.name&&s.name.includes(q)).slice(0,6);
+  if(!hit.length) return `<div class="rlink warn">系統沒有這個人，將記為非學生承租人</div>`;
+  return `<div class="rsug">${hit.map(s=>`<button type="button" class="rsug-i" onclick="pickRenter('${s.id}')">${s.name}<span>${s.status||''}${teacherName(s.t)?' · '+teacherName(s.t):''}</span></button>`).join('')}</div>`;
+}
+
 function renderRentalModal(){
   const m=ui.rmodal; if(!m) return;
   const esc=(v)=>String(v==null?'':v).replace(/"/g,'&quot;');
@@ -23,8 +52,10 @@ function renderRentalModal(){
     <div class="sheet">
       <div class="handle"></div>
       <h3>${m.isNew?'新增器材租借':'器材租借'}</h3>
-      <div class="field"><label>承租人姓名</label><input class="inp" value="${esc(m.name)}" oninput="ui.rmodal.name=this.value" placeholder="輸入學生姓名"></div>
-      ${(()=>{ const tn=rentalTeacher(m); return tn?`<div class="field tchrow"><label>老師 <span class="sublabel">（自動帶出）</span></label><div class="tchval">${tn}</div></div>`:''; })()}
+      <div class="field"><label>承租人姓名</label>
+        <input class="inp" value="${esc(m.name)}" oninput="renterInput(this.value)" oncompositionend="renterInput(this.value)" placeholder="輸入學生姓名">
+        <div id="rsug">${renterSug()}</div></div>
+      <div id="rtch">${renterTeacherRow()}</div>
       <div class="field"><label>樂器</label><div class="chips">${chips('inst',['古箏','琵琶'])}</div></div>
       <div class="field"><label>方案</label><div class="chips">${chips('billing',['月繳','季繳'])}</div></div>
       <div class="field"><label>繳費日 <span class="sublabel">（可早繳／晚繳，與起租日無關）</span></label>
@@ -66,10 +97,22 @@ function closeRental(){ const h=document.getElementById('rov'); if(h) h.remove()
 async function saveRental(){
   const m=ui.rmodal;
   if(!m.name || !m.name.trim()){ toast('請輸入承租人姓名'); return; }
-  const stu=DB.students.find(s=>s.name===m.name.trim());
+  // 優先用明確挑選的學生；沒挑就退回完全同名比對（沿用舊行為）
+  const stu=(m.sid?DB.students.find(s=>s.id===m.sid):null)||DB.students.find(s=>s.name===m.name.trim());
   const returned = m.status==='已還箏' ? (m.returned||today()) : null;
-  const rec={ student_id: stu?stu.id:null, renter_name:m.name.trim(), instrument:m.inst, billing:m.billing,
+  // renter_name 以系統記的名稱為主（挑到學生就用學生的寫法）
+  const rec={ student_id: stu?stu.id:null, renter_name: stu?stu.name:m.name.trim(), instrument:m.inst, billing:m.billing,
     pay_date:m.pay||null, start_date:m.start||null, due_date:m.due||null, status:m.status||'租賃中', returned_date:returned, note:(m.note||'').trim()||null };
+  // 防重複：同一人（以連到的學生為準，沒連就比姓名）已有同樂器的租賃中紀錄
+  if(m.isNew){
+    const dup=DB.rentals.filter(r=>r.status==='租賃中' && r.inst===rec.instrument
+      && (stu ? (r.sid===stu.id || r.name===stu.name) : r.name===rec.renter_name));
+    if(dup.length){
+      const d=dup[0];
+      if(!confirm(`${rec.renter_name} 已有一筆租賃中的${rec.instrument}\n（${fmtDate2(d.start)} ～ ${fmtDate2(d.due)}）\n\n要延長租期請用那筆的「續租一期」。\n確定還要新增一筆嗎？`)) return;
+    }
+  }
+
   if(m.isNew){
     const {data,error}=await sb.from('rentals').insert(rec).select().single();
     if(error){ toast('新增失敗：'+error.message); return; }

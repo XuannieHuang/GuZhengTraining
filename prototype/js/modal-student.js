@@ -97,6 +97,7 @@ function renderStudentModal(){
           <span class="t-muted nowrap">${fmtDate2(c.changed_at)}</span>
           <span>${teacherName(c.from_teacher_id)||'未指派'} → <b>${teacherName(c.to_teacher_id)||'未指派'}</b></span></div>`).join('')}
       </div>`}
+      ${m.isNew?'':`<a class="resetlink danger" onclick="deleteStudent()">🗑 刪除這位學生</a>`}
       <div class="actions">
         <button class="btn ghost" onclick="closeStudent()">取消</button>
         <button class="btn primary" onclick="saveStudent()">${m.isNew?'新增':'儲存'}</button>
@@ -158,4 +159,31 @@ async function saveStudent(){
   const created=m.isNew, paid=m.isNew&&m.payOn&&m.payForm&&m.payForm.amt;
   closeStudent();                                                    // closeStudent 已重繪背景
   toast(created?(paid?'已新增學生並登記首期繳費（不扣堂）':'已新增學生'):'已更新學生');
+}
+
+/* 刪除學生＝註記刪除（寫入 deleted_at），不是真的從資料庫移除。
+   繳費紀錄、換老師紀錄、租借全部原封不動保留，只是這位學生不再出現在 App 裡。 */
+async function deleteStudent(){
+  const m=ui.smodal; if(!m||m.isNew) return;
+  const pays=(m.history||[]).length;
+  const rents=DB.rentals.filter(r=>r.sid===m.id||r.name===m.name).length;
+
+  const lines=[`確定刪除學生「${m.name}」？`,''];
+  lines.push('資料不會真的消失，只是不再出現在 App 裡：');
+  if(pays)  lines.push(`・繳費紀錄 ${pays} 筆　保留`);
+  if(rents) lines.push(`・租借紀錄 ${rents} 筆　保留`);
+  lines.push('・報表歷史　保留');
+  lines.push('', '要救回來需要我從資料庫處理。');
+  if(!confirm(lines.join('\n'))) return;
+
+  const { error } = await sb.from('students')
+    .update({ deleted_at: new Date().toISOString() }).eq('id', m.id);
+  if(error){
+    toast(/deleted_at/.test(error.message)
+      ? '資料庫還沒有 deleted_at 欄位，請先執行那行 SQL'
+      : '刪除失敗：'+error.message);
+    return;
+  }
+  DB.students = DB.students.filter(x=>x.id!==m.id);
+  closeStudent(); render(); toast(`已刪除學生 ${m.name}`);
 }

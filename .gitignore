@@ -23,3 +23,11 @@ supabase/schema.sql
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# ── 對帳產出（含個資，不進版控）──
+data/
+*.csv
+
+# ── 本機連線設定（含密碼，絕不進版控）──
+.env
+.env.local

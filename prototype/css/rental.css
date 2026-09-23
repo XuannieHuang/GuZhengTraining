@@ -27,3 +27,13 @@
 .due-soon{color:#d97706; font-weight:800;}
 /* 續租按鈕（整排） */
 .renew-btn{width:100%; margin-bottom:8px;}
+
+/* 承租人姓名的學生建議清單 */
+.rsug{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+.rsug-i{border:1px solid var(--line);background:var(--card);border-radius:9px;
+  padding:6px 10px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;}
+.rsug-i span{color:var(--muted);font-size:11.5px;margin-left:5px;}
+@media (hover:hover) and (pointer:fine){ .rsug-i:hover{background:var(--fill);} }
+.rlink{margin-top:7px;font-size:12.5px;}
+.rlink.ok{color:var(--primary-d);}
+.rlink.warn{color:var(--amber);}
