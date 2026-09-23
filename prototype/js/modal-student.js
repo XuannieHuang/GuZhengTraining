@@ -74,7 +74,7 @@ function renderStudentModal(){
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closeStudent()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.isNew?'新增學生':'編輯學生'}</h3>
+      <h3>${m.isNew?'新增學生':'編輯學生'}<button class="sheet-x" onclick="closeStudent()" title="關閉" aria-label="關閉">✕</button></h3>
       <div class="field"><label>姓名</label><input class="inp" value="${esc(m.name)}" oninput="ui.smodal.name=this.value"></div>
       <div class="field"><label>任課老師</label><div class="chips">${tChips}</div></div>
       <div class="field"><label>學習樂器</label><div class="chips">${chips('inst',instOpts)}</div></div>
@@ -97,7 +97,7 @@ function renderStudentModal(){
           <span class="t-muted nowrap">${fmtDate2(c.changed_at)}</span>
           <span>${teacherName(c.from_teacher_id)||'未指派'} → <b>${teacherName(c.to_teacher_id)||'未指派'}</b></span></div>`).join('')}
       </div>`}
-      ${m.isNew?'':`<a class="resetlink danger" onclick="deleteStudent()">🗑 刪除這位學生</a>`}
+      ${m.isNew?'':`<button class="btn-del" onclick="deleteStudent()">🗑 刪除這位學生</button>`}
       <div class="actions">
         <button class="btn ghost" onclick="closeStudent()">取消</button>
         <button class="btn primary" onclick="saveStudent()">${m.isNew?'新增':'儲存'}</button>

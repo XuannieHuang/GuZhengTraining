@@ -36,7 +36,7 @@ SHOTS = [
     ('05-核對-已核對', 'v=check&act=checked&cal=.chk-card.done', 390, 800),
     ('06-核對-搜尋', 'v=check&act=search&cal=.searchbox2', 390, 700),
     ('07-新增學生', 'v=check&m=newstudent&act=firstpay&cal=.paytoggle;%23sov .btn.primary', 390, 1250),
-    ('08-編輯學生', 'v=check&m=student&cal=.resetlink.danger', 390, 1250),
+    ('08-編輯學生', 'v=check&m=student&cal=.sheet-x;.btn-del', 390, 1500),
     ('09-租借', 'v=rental&cal=.rtab:nth-child(1);.raddmini', 390, 800),
     ('10-租借-建議', 'v=rental&m=newrental&act=suggest&cal=%23rov .inp;.rsug-i', 390, 940),
     ('11-租借-非學生', 'v=rental&m=newrental&act=nonstudent&cal=.rlink.warn', 390, 940),

@@ -87,7 +87,11 @@ nav button.active{color:var(--primary); font-weight:700;}
 /* 彈窗開啟時鎖住背景捲動，避免捲到背景頁面 */
 body.modal-open #app main{overflow:hidden;}
 @keyframes up{from{transform:translateY(40px); opacity:.5;} to{transform:translateY(0); opacity:1;}}
-.sheet h3{margin:0 0 14px; font-size:17px;}
+.sheet h3{margin:0 0 14px; font-size:17px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+/* 彈窗右上角關閉鈕（長彈窗不必捲到底才找得到「取消」） */
+.sheet-x{flex:0 0 auto; border:0; background:var(--fill); color:var(--muted);
+  width:32px; height:30px; border-radius:9px; font:inherit; font-size:15px; line-height:1; cursor:pointer;}
+@media (hover:hover) and (pointer:fine){ .sheet-x:hover{background:#e3e6ea; color:var(--ink);} }
 .sheet .handle{width:42px; height:4px; background:#cbd5e1; border-radius:2px; margin:0 auto 14px;}
 .sheet .sub-h{font-size:13px; color:var(--muted); margin:-8px 0 16px;}
 .field{margin-bottom:14px;}
@@ -117,6 +121,11 @@ body.modal-open #app main{overflow:hidden;}
 .empty{text-align:center; color:var(--muted); padding:40px 10px; font-size:14px;}
 .resetlink{display:block; text-align:center; color:var(--muted); font-size:12px; margin:18px 0 4px; text-decoration:underline; cursor:pointer;}
 .resetlink.danger{color:#dc2626;}
+/* 彈窗底部的刪除鈕：與取消/儲存同一個視覺層級，不會被當成說明文字滑過去 */
+.btn-del{display:block; width:100%; box-sizing:border-box; text-align:center;
+  border:1.5px solid var(--red); color:var(--red); background:var(--card); border-radius:10px;
+  padding:11px; font:inherit; font-size:14px; font-weight:700; cursor:pointer; margin:14px 0 10px;}
+@media (hover:hover) and (pointer:fine){ .btn-del:hover{background:var(--red-bg);} }
 
 /* ── 工具類別（取代 inline style） ── */
 .tac{text-align:center;}
