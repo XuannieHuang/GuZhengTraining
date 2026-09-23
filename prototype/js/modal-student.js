@@ -169,11 +169,14 @@ async function deleteStudent(){
   const rents=DB.rentals.filter(r=>r.sid===m.id||r.name===m.name).length;
 
   const lines=[`確定刪除學生「${m.name}」？`,''];
-  lines.push('資料不會真的消失，只是不再出現在 App 裡：');
-  if(pays)  lines.push(`・繳費紀錄 ${pays} 筆　保留`);
-  if(rents) lines.push(`・租借紀錄 ${rents} 筆　保留`);
-  lines.push('・報表歷史　保留');
-  lines.push('', '要救回來需要我從資料庫處理。');
+  if(pays || rents){
+    lines.push('資料不會真的消失，只是不再出現在 App 裡：');
+    if(pays)  lines.push(`・繳費紀錄 ${pays} 筆　保留（報表營收照算）`);
+    if(rents) lines.push(`・租借紀錄 ${rents} 筆　保留`);
+  }else{
+    lines.push('這位學生沒有繳費或租借紀錄。');
+  }
+  lines.push('', '刪除後無法在 App 內還原，需由管理者從資料庫處理。');
   if(!confirm(lines.join('\n'))) return;
 
   const { error } = await sb.from('students')
