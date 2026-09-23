@@ -31,3 +31,7 @@ data/
 # ── 本機連線設定（含密碼，絕不進版控）──
 .env
 .env.local
+
+# ── Python 編譯快取 ──
+__pycache__/
+*.pyc
