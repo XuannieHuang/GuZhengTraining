@@ -14,7 +14,7 @@ function renderPlanModal(){
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closePlan()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.isNew?'新增方案':'編輯方案'}</h3>
+      <h3>${m.isNew?'新增方案':'編輯方案'}<button class="sheet-x" onclick="closePlan()" title="關閉" aria-label="關閉">✕</button></h3>
       <div class="field"><label>學習樂器 <span class="sublabel">（可自由打字，例如 古箏、琵琶、二胡…）</span></label>
         <input class="inp" value="${esc(m.instrument)}" oninput="ui.pmodal.instrument=this.value"></div>
       <div class="field"><label>授課類型 <span class="sublabel">（可自由打字，例如 個人、團體、雙人…）</span></label>

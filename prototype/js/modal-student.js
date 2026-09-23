@@ -42,9 +42,9 @@ function renderStudentModal(){
       return `<div class="chipbtn ${m.partner===c.id?'sel':''}" onclick="sfield('partner','${c.id}')">${c.name}${taken}</div>`;
     }).join('');
     if(m.partner) chips += `<div class="chipbtn ${!m.partner?'sel':''}" onclick="sfield('partner',null)">無／解除</div>`;
-    partnerField=`<div class="field"><label>雙人組同學 <span class="sublabel">（各自繳費，連動檢視）</span></label>
+    partnerField=`<div class="field"><label>雙人組同學</label>
       ${cands.length ? `<div class="chips">${chips}</div>`
-        : `<div class="meta">目前沒有可配對的同學，等對方建檔（同老師·雙人班）後再回來這裡配對。</div>`}</div>`;
+        : `<div class="meta">目前沒有可配對的同學</div>`}</div>`;
   }
   // 💲 記繳費 inline 表單（新生建檔可一併登記首期；舊生直接記一筆）
   let payField='';
@@ -60,12 +60,11 @@ function renderStudentModal(){
       <div class="summary"><span>合計（${pf.periods} 期）</span><b>$${total.toLocaleString()}</b></div>`;
     if(m.isNew){
       payField=`<div class="field paybox">
-        <label class="paytoggle"><input type="checkbox" ${m.payOn?'checked':''} onchange="ui.smodal.payOn=this.checked;renderStudentModal()"> 💲 一併登記首期繳費 <span class="sublabel">（首期不扣堂，已上維持 ${m.attended||0}）</span></label>
-        ${m.payOn?`${payFields}
-        <div class="hint">按下方【新增】即一併建檔＋登記首期繳費。</div>`:''}
+        <label class="paytoggle"><input type="checkbox" ${m.payOn?'checked':''} onchange="ui.smodal.payOn=this.checked;renderStudentModal()"> 💲 一併登記首期繳費</label>
+        ${m.payOn?`${payFields}`:''}
       </div>`;
     } else {
-      payField=`<div class="field paybox"><label>💲 記一筆繳費 <span class="sublabel">（確認後已上堂數自動 −${sess}）</span></label>
+      payField=`<div class="field paybox"><label>💲 記一筆繳費</label>
         ${payFields}
         <button class="btn primary block paybtn" onclick="payFromStudent()">確認記繳費</button>
       </div>`;
@@ -81,7 +80,7 @@ function renderStudentModal(){
       <div class="field"><label>授課類型</label><div class="chips">${chips('type',typeOpts)}</div></div>
       ${partnerField}
       <div class="field"><label>方案</label><div class="chips">${chips('plan',['月繳','季繳','單堂'])}</div></div>
-      <div class="field"><label>狀態 <span class="sublabel">（停課/待確認不會出現在核對）</span></label><div class="chips">${chips('status',['在學','新生','停課','待確認'])}</div></div>
+      <div class="field"><label>狀態</label><div class="chips">${chips('status',['在學','新生','停課','待確認'])}</div></div>
       <div class="field"><label>已上堂數</label><input class="inp" type="number" inputmode="numeric" value="${m.attended||0}" oninput="ui.smodal.attended=parseInt(this.value||'0',10)"></div>
       <div class="field"><label>備註</label><textarea class="inp note-area" rows="${Math.min(8,Math.max(2,Math.ceil(((m.note||'').length+1)/16)))}" oninput="ui.smodal.note=this.value;this.style.height='auto';this.style.height=this.scrollHeight+'px'">${htmlesc(m.note)}</textarea></div>
       ${payField}
@@ -90,7 +89,7 @@ function renderStudentModal(){
           : (m.history.length ? m.history.map(p=>{ const amt=(p.amount||0)*(p.periods||1); return `<div class="histrow pay clickable" onclick="openPayEvent('${p.id}')">
               <span>${fmtDate(p.pay_date)}　<span class="t-muted">${p.billing||''}${p.periods>1?' ×'+p.periods:''}</span></span>
               <b class="${amt<0?'t-red':'t-primary'}">$${amt.toLocaleString()}</b></div>`; }).join('')
-            : '<div class="meta">尚無繳費紀錄（用「💲 記繳費」記的會出現在這，可點進來改／刪／退費）</div>')}
+            : '<div class="meta">尚無繳費紀錄</div>')}
       </div>`}
       ${(m.isNew || !(m.tchanges&&m.tchanges.length))?'':`<div class="field"><label>老師異動歷史</label>
         ${m.tchanges.map(c=>`<div class="histrow pay">

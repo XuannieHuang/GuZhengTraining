@@ -11,7 +11,7 @@ function renderModal(){
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closePay()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${s.name}　記一筆繳費</h3>
+      <h3>${s.name}　記一筆繳費<button class="sheet-x" onclick="closePay()" title="關閉" aria-label="關閉">✕</button></h3>
       <div class="sub-h">${teacherName(s.t)} · ${s.inst}${s.type}班</div>
       <div class="field"><label>方案</label><div class="chips">
         ${planOpts.map(p=>`<div class="chipbtn ${ui.modal.plan===p?'sel':''}" onclick="setPlan('${p}')">${p}<span class="chip-sub"> ${p==='季繳'?12:(p==='單堂'?1:4)}堂</span></div>`).join('')}
@@ -19,7 +19,7 @@ function renderModal(){
       <div class="field"><label>期數</label><div class="chips">
         ${[1,2,3].map(n=>`<div class="chipbtn ${ui.modal.periods===n?'sel':''}" onclick="setPeriods(${n})">${n} 期</div>`).join('')}
       </div></div>
-      <div class="field"><label>金額 <span class="sublabel">／期（自動帶上次金額，可改）</span></label>
+      <div class="field"><label>金額 <span class="sublabel">／期</span></label>
         <input class="inp" type="number" inputmode="numeric" value="${ui.modal.amt}" oninput="ui.modal.amt=parseInt(this.value||'0',10)">
         <div class="presets">
           ${s.amt?`<div class="preset" onclick="setAmt(${s.amt})">上次 <b>$${s.amt}</b></div>`:''}
@@ -29,7 +29,7 @@ function renderModal(){
       <div class="field"><label>繳費日</label>
         <input class="inp" type="date" value="${ui.modal.date}" onchange="ui.modal.date=this.value"></div>
       <div class="summary"><span>合計（${ui.modal.periods} 期）</span><b>$${total.toLocaleString()}</b></div>
-      <div class="hint">＊確認後「已上堂數」自動 −${size * ui.modal.periods} 堂（${s.attended} → ${s.attended - size*ui.modal.periods}），等於滾到下一期。</div>
+      <div class="hint">＊確認後「已上堂數」自動 −${size * ui.modal.periods} 堂（${s.attended} → ${s.attended - size*ui.modal.periods}）</div>
       <div class="actions">
         <button class="btn ghost" onclick="closePay()">取消</button>
         <button class="btn primary" onclick="confirmPay()">確認繳費</button>

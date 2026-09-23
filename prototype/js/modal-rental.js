@@ -51,24 +51,24 @@ function renderRentalModal(){
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closeRental()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.isNew?'新增器材租借':'器材租借'}</h3>
+      <h3>${m.isNew?'新增器材租借':'器材租借'}<button class="sheet-x" onclick="closeRental()" title="關閉" aria-label="關閉">✕</button></h3>
       <div class="field"><label>承租人姓名</label>
         <input class="inp" value="${esc(m.name)}" oninput="renterInput(this.value)" oncompositionend="renterInput(this.value)" placeholder="輸入學生姓名">
         <div id="rsug">${renterSug()}</div></div>
       <div id="rtch">${renterTeacherRow()}</div>
       <div class="field"><label>樂器</label><div class="chips">${chips('inst',['古箏','琵琶'])}</div></div>
       <div class="field"><label>方案</label><div class="chips">${chips('billing',['月繳','季繳'])}</div></div>
-      <div class="field"><label>繳費日 <span class="sublabel">（可早繳／晚繳，與起租日無關）</span></label>
+      <div class="field"><label>繳費日</label>
         <input class="inp" type="date" value="${m.pay||''}" onchange="ui.rmodal.pay=this.value"></div>
       <div class="field"><label>起租日</label>
         <input class="inp" type="date" value="${m.start||''}" onchange="ui.rmodal.start=this.value;ui.rmodal.due=dueFromStart(this.value,ui.rmodal.billing);renderRentalModal()"></div>
-      <div class="field"><label>到期日 <span class="sublabel">（起租日自動帶 +${m.billing==='季繳'?3:1} 個月，可手動改）</span></label>
+      <div class="field"><label>到期日</label>
         <input class="inp" type="date" value="${m.due||''}" onchange="ui.rmodal.due=this.value"></div>
       <div class="field"><label>備註</label><input class="inp" value="${esc(m.note)}" oninput="ui.rmodal.note=this.value"></div>
       ${!m.isNew?`<div class="field"><label>狀態</label><div class="chips">${chips('status',['租賃中','已還箏'])}</div></div>`:''}
       ${!m.isNew && m.status==='已還箏'?`<div class="field"><label>還箏日</label>
         <input class="inp" type="date" value="${m.returned||today()}" onchange="ui.rmodal.returned=this.value"></div>`:''}
-      ${!m.isNew?`<div class="field"><label>租借歷史 <span class="sublabel">（每期一筆；✕ 可刪該期）</span></label>
+      ${!m.isNew?`<div class="field"><label>租借歷史</label>
         ${m.logs===null ? '<div class="meta">載入中…</div>'
           : (m.logs.length ? m.logs.map((l,i)=>`<div class="histrow rent">
               <span class="t-muted nowrap">繳費 ${fmtDate(l.pay_date)}</span>

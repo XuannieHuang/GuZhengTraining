@@ -19,7 +19,7 @@ function renderPayEvent(){
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closePayEvent()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.sname}　編輯繳費</h3>
+      <h3>${m.sname}　編輯繳費<button class="sheet-x" onclick="closePayEvent()" title="關閉" aria-label="關閉">✕</button></h3>
       <div class="sub-h">修正這筆繳費紀錄（補登／改錯／退費）· 不影響已上堂數</div>
       <div class="field"><label>方案</label><div class="chips">
         ${planOpts.map(p=>`<div class="chipbtn ${m.billing===p?'sel':''}" onclick="peField('billing','${p}')">${p}</div>`).join('')}
