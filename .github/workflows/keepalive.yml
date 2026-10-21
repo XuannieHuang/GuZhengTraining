@@ -1,17 +1,28 @@
 name: Supabase Keep-Alive
 # 目的：
-#  1) 每週一、四 ping 一次 Supabase → 製造活動，避免免費方案閒置 7 天被暫停。
-#  2) 順便自動 push 一個心跳檔 → 讓 repo 一直有活動，避免 GitHub「60 天沒 commit 就停用排程」。
-# 用的是 anon 公開金鑰（本來就在前端 config.js，公開安全）。
-# 心跳 commit 帶 [skip ci]，不會觸發 Netlify/部署，也不會重跑本流程（本流程只吃 schedule / 手動）。
+#  1) 每天戳一次 Supabase → 製造「真正的資料庫活動」，避免免費方案閒置被暫停。
+#  2) 每週一順便 push 一個心跳檔 → 讓 repo 保持活動，避免 GitHub「60 天沒 commit 就停用排程」。
+#
+# 2026-10-21 改版原因（實測佐證）：
+#   舊版用 anon 公開金鑰查 teachers，但 RLS 只開放 authenticated，
+#   實測回應是 HTTP 200 + 空陣列 []，而舊流程只檢查「狀態碼是不是 000」，
+#   所以空回應也判定成功 —— 每次都顯示正常，專案卻仍在 10/15～10/19 之間被暫停。
+#   現在改成：用 service_role 金鑰查真實資料，而且「沒拿到資料列就算失敗」。
+#
+# 需要的 repository secret：
+#   SUPABASE_SERVICE_KEY  （Supabase → Project Settings → API → service_role）
+#   ⚠️ 這把金鑰可以繞過 RLS，只能放 GitHub Secret，絕不可寫進程式碼（repo 是公開的）。
 
 on:
   schedule:
-    - cron: '23 4 * * 1,4'   # UTC 週一、週四 04:23（最長間隔 3~4 天）
-  workflow_dispatch:          # 也可在 GitHub「Actions」頁手動觸發
+    - cron: '23 4 * * *'      # 每天 UTC 04:23（台灣 12:23）
+  workflow_dispatch:           # 也可在 GitHub「Actions」頁手動觸發
 
 permissions:
-  contents: write             # 讓流程能 push 心跳檔
+  contents: write              # 讓流程能 push 心跳檔
+
+env:
+  SB_URL: https://toxfwcuhugrqwibghiig.supabase.co
 
 jobs:
   keepalive:
@@ -20,22 +31,58 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Ping Supabase REST API
+      - name: 檢查金鑰是否設定
         run: |
-          KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGZ3Y3VodWdycXdpYmdoaWlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2ODExNjAsImV4cCI6MjA5NzI1NzE2MH0.hzfgb98Kzr1cMEStNdnLchcRlTh7BTvVacGZDTbrw00"
-          CODE=$(curl -sS -o /dev/null -w "%{http_code}" \
-            "https://toxfwcuhugrqwibghiig.supabase.co/rest/v1/teachers?select=id&limit=1" \
-            -H "apikey: $KEY" \
-            -H "Authorization: Bearer $KEY")
-          echo "Supabase REST responded HTTP $CODE"
-          if [ "$CODE" = "000" ]; then echo "連不上（可能已暫停或網路問題）"; exit 1; fi
-          echo "OK — 已戳一下資料庫，重置閒置計時。"
+          if [ -z "${{ secrets.SUPABASE_SERVICE_KEY }}" ]; then
+            echo "::error::缺少 repository secret SUPABASE_SERVICE_KEY"
+            echo "設定位置：GitHub → Settings → Secrets and variables → Actions → New repository secret"
+            echo "名稱 SUPABASE_SERVICE_KEY，值是 Supabase → Project Settings → API 的 service_role 金鑰"
+            exit 1
+          fi
 
-      - name: Commit heartbeat (keeps repo active)
+      - name: 查真實資料（這才算資料庫活動）
+        env:
+          KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
+          # -e 讓任何一步失敗就中止。舊版沒有這行，失敗時反而往下走印出 OK。
+          set -euo pipefail
+
+          BODY=$(curl -sS --max-time 30 \
+            "$SB_URL/rest/v1/students?select=id,name&limit=3" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+            -w $'\n%{http_code}')
+          CODE=$(printf '%s' "$BODY" | tail -n1)
+          JSON=$(printf '%s' "$BODY" | sed '$d')
+
+          echo "HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Supabase 回應 HTTP $CODE —— 專案可能已暫停，請到後台 Restore"
+            exit 1
+          fi
+
+          # 關鍵：必須真的拿到資料列。空陣列代表金鑰或權限有問題，等於沒戳到資料庫。
+          # 刻意不用 jq，少一個相依；jq 不在時會算出空值，反而誤判成功。
+          # grep 找不到會回傳 1，在 set -e 下會直接中斷、跑不到下面的錯誤說明 → 用 || N=0 接住
+          N=$(printf '%s' "$JSON" | grep -o '"id"' | wc -l) || N=0
+          echo "取回 $N 筆"
+          if [ "$N" -lt 1 ]; then
+            echo "::error::回應沒有任何資料列 —— 金鑰可能不是 service_role，或資料表是空的。這種請求不算有效活動。"
+            echo "回應內容：$JSON"
+            exit 1
+          fi
+          echo "OK —— 已對資料庫做了一次真實查詢，閒置計時重置。"
+
+      - name: 心跳 commit（每週一，維持 repo 活躍）
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
+          if [ "$(date -u +%u)" != "1" ]; then
+            echo "今天不是週一，跳過心跳 commit"
+            exit 0
+          fi
           date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/last-keepalive.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/last-keepalive.txt
-          git commit -m "chore: keep-alive $(date -u +%Y-%m-%d) [skip ci]" || { echo "nothing to commit"; exit 0; }
+          git commit -m "chore: keep-alive $(date -u +%Y-%m-%d) [skip ci]" || { echo "沒有變更"; exit 0; }
+          git pull --rebase --quiet
           git push
