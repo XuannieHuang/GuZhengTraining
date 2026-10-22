@@ -46,6 +46,15 @@ jobs:
         run: |
           # -e 讓任何一步失敗就中止。舊版沒有這行，失敗時反而往下走印出 OK。
           set -euo pipefail
+          # 只辨識金鑰「類型」，不印出任何金鑰內容
+          case "$KEY" in
+            sb_secret_*)      echo "金鑰類型：新版 secret key" ;;
+            sb_publishable_*) echo "::warning::金鑰類型是 publishable（公開金鑰）—— 會被 RLS 擋成 []，要改用 Secret keys 那一把" ;;
+            eyJ*)             echo "金鑰類型：舊版 JWT（anon 或 service_role）" ;;
+            "")               echo "::error::金鑰是空的" ; exit 1 ;;
+            *)                echo "::warning::無法辨識的金鑰格式" ;;
+          esac
+
           URL="$SB_URL/rest/v1/students?select=id,name&limit=3"
           LAST=""
 
@@ -71,7 +80,9 @@ jobs:
             echo "OK —— 已對資料庫做了一次真實查詢（apikey + Authorization），閒置計時重置。"
           else
             echo "::error::兩種標頭組合都拿不到資料列。最後一次的回應：$LAST"
-            echo "可能原因：金鑰不是 secret／service_role（公開金鑰會被 RLS 擋成 []），或專案已暫停。"
+            echo "下一步：若上面顯示 publishable，改用 Supabase → Settings → API Keys →"
+            echo "        Secret keys 那一把；若已是 secret key 仍失敗，改用"
+            echo "        「Legacy anon, service_role API keys」分頁裡的 service_role。"
             exit 1
           fi
 
