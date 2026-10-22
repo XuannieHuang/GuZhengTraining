@@ -55,8 +55,8 @@ jobs:
           attempt() {
             local desc="$1"; shift
             local body code json n
-            body=$(curl -sS --max-time 30 "$URL" "$@" -w $'
-%{http_code}') || return 1
+            # curl 的 -w 自己就認得 \n，不必用 bash 的 $'...' 語法
+            body=$(curl -sS --max-time 30 "$URL" "$@" -w "\n%{http_code}") || return 1
             code=$(printf '%s' "$body" | tail -n1)
             json=$(printf '%s' "$body" | sed '$d')
             n=$(printf '%s' "$json" | grep -o '"id"' | wc -l) || n=0
