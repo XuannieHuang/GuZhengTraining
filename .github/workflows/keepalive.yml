@@ -46,31 +46,34 @@ jobs:
         run: |
           # -e 讓任何一步失敗就中止。舊版沒有這行，失敗時反而往下走印出 OK。
           set -euo pipefail
+          URL="$SB_URL/rest/v1/students?select=id,name&limit=3"
+          LAST=""
 
-          BODY=$(curl -sS --max-time 30 \
-            "$SB_URL/rest/v1/students?select=id,name&limit=3" \
-            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
-            -w $'\n%{http_code}')
-          CODE=$(printf '%s' "$BODY" | tail -n1)
-          JSON=$(printf '%s' "$BODY" | sed '$d')
+          # Supabase 新版金鑰（sb_secret_...）不是 JWT，放進 Authorization 會被 PostgREST
+          # 解析失敗而降級成 anon 角色 → 被 RLS 擋掉、回空陣列。舊版 service_role 則兩種都吃。
+          # 所以兩種組合都試，哪個真的拿得到資料就算成功，並印出是哪一種。
+          attempt() {
+            local desc="$1"; shift
+            local body code json n
+            body=$(curl -sS --max-time 30 "$URL" "$@" -w $'
+%{http_code}') || return 1
+            code=$(printf '%s' "$body" | tail -n1)
+            json=$(printf '%s' "$body" | sed '$d')
+            n=$(printf '%s' "$json" | grep -o '"id"' | wc -l) || n=0
+            echo "  [$desc] HTTP $code，取回 $n 筆"
+            LAST="$json"
+            [ "$code" = "200" ] && [ "$n" -ge 1 ]
+          }
 
-          echo "HTTP $CODE"
-          if [ "$CODE" != "200" ]; then
-            echo "::error::Supabase 回應 HTTP $CODE —— 專案可能已暫停，請到後台 Restore"
+          if attempt "只送 apikey" -H "apikey: $KEY"; then
+            echo "OK —— 已對資料庫做了一次真實查詢（只送 apikey），閒置計時重置。"
+          elif attempt "apikey + Authorization" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"; then
+            echo "OK —— 已對資料庫做了一次真實查詢（apikey + Authorization），閒置計時重置。"
+          else
+            echo "::error::兩種標頭組合都拿不到資料列。最後一次的回應：$LAST"
+            echo "可能原因：金鑰不是 secret／service_role（公開金鑰會被 RLS 擋成 []），或專案已暫停。"
             exit 1
           fi
-
-          # 關鍵：必須真的拿到資料列。空陣列代表金鑰或權限有問題，等於沒戳到資料庫。
-          # 刻意不用 jq，少一個相依；jq 不在時會算出空值，反而誤判成功。
-          # grep 找不到會回傳 1，在 set -e 下會直接中斷、跑不到下面的錯誤說明 → 用 || N=0 接住
-          N=$(printf '%s' "$JSON" | grep -o '"id"' | wc -l) || N=0
-          echo "取回 $N 筆"
-          if [ "$N" -lt 1 ]; then
-            echo "::error::回應沒有任何資料列 —— 金鑰可能不是 service_role，或資料表是空的。這種請求不算有效活動。"
-            echo "回應內容：$JSON"
-            exit 1
-          fi
-          echo "OK —— 已對資料庫做了一次真實查詢，閒置計時重置。"
 
       - name: 心跳 commit（每週一，維持 repo 活躍）
         if: ${{ github.event_name == 'schedule' }}
