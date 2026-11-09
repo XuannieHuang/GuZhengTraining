@@ -64,9 +64,12 @@ function renderStudentModal(){
         ${m.payOn?`${payFields}`:''}
       </div>`;
     } else {
-      payField=`<div class="field paybox"><label>💲 記一筆繳費</label>
-        ${payFields}
-        <button class="btn primary block paybtn" onclick="payFromStudent()">確認記繳費</button>
+      // 預設收合。展開著的話，那顆整條寬的綠色按鈕跟底部「儲存」同色同寬，
+      // 改學生資料往下捲時很容易誤按成記一筆繳費。
+      payField=`<div class="field paybox">
+        <label class="paytoggle"><input type="checkbox" ${m.payOn?'checked':''} onchange="ui.smodal.payOn=this.checked;renderStudentModal()"> 💲 記一筆繳費</label>
+        ${m.payOn?`${payFields}
+        <button class="btn primary block paybtn" onclick="payFromStudent()">確認記繳費</button>`:''}
       </div>`;
     }
   }
@@ -117,7 +120,7 @@ async function payFromStudent(){
   m.attended=(m.attended||0)-sess; m.plan=pf.plan; m.pay=pf.date; m.amt=pf.amt;   // 扣堂 + 更新最後繳費
   pushStudent(m.id,{ last_pay_date:pf.date, last_pay_amount:pf.amt, plan:pf.plan, notified:false, attended:m.attended });
   const s=DB.students.find(x=>x.id===m.id); if(s) Object.assign(s,{ pay:pf.date, amt:pf.amt, plan:pf.plan, attended:m.attended, notified:false });
-  m.payForm=null;   // 重置表單
+  m.payForm=null; m.payOn=false;   // 重置表單並收合，避免連續誤按
   toast(`已記繳費　已上堂數 −${sess} → ${m.attended}`);
   sb.from('payments').select('*').eq('student_id',m.id).then(({data})=>{ if(ui.smodal&&ui.smodal.id===m.id){ ui.smodal.history=(data||[]).sort((a,b)=>(b.pay_date||'').localeCompare(a.pay_date||'')); renderStudentModal(); }});
   renderStudentModal();

@@ -50,6 +50,7 @@ async function savePayEvent(){
   const { error } = await sb.from('payments').update(rec).eq('id',m.id);
   if(error){ toast('儲存失敗：'+error.message); return; }
   const p=findPayment(m.id); if(p) Object.assign(p, { billing:rec.billing, periods:rec.periods, amount:rec.amount, pay_date:rec.pay_date });
+  await syncLastPay(m.sid);
   closePayEvent(); refreshAfterPayEdit(); toast('已更新繳費紀錄');
 }
 async function deletePayEvent(){
@@ -58,7 +59,9 @@ async function deletePayEvent(){
   const { error } = await sb.from('payments').delete().eq('id',m.id);
   if(error){ toast('刪除失敗：'+error.message); return; }
   if(REPORTS.payments) REPORTS.payments=REPORTS.payments.filter(p=>p.id!==m.id);
-  closePayEvent(); refreshAfterPayEdit(); toast('已刪除繳費紀錄');
+  const r = await syncLastPay(m.sid);
+  closePayEvent(); refreshAfterPayEdit();
+  toast(r==='cleared' ? '已刪除；這位學生已無繳費紀錄，最後繳費日一併清空' : '已刪除繳費紀錄');
 }
 async function refundPayEvent(){
   const m=ui.pemodal;
@@ -68,8 +71,35 @@ async function refundPayEvent(){
   const { data, error } = await sb.from('payments').insert(rec).select().single();
   if(error){ toast('退費失敗：'+error.message); return; }
   if(REPORTS.payments) REPORTS.payments.push(data);
+  await syncLastPay(m.sid);            // 退費是負數，不會變成最後繳費，但其他紀錄可能需要重算
   closePayEvent(); refreshAfterPayEdit(); toast('已記一筆退費');
 }
+/* 繳費紀錄異動後，把「最後繳費」重算回 students。
+   規則（2026-11-09 與使用者確認）：
+   · 看得到的最新一筆繳費就是最後繳費日 → 取剩餘紀錄中金額為正的最新一筆（退回上一筆）
+   · 一筆都不剩 → 清空。系統確實已無任何繳費紀錄，留著已刪除的日期會對不上畫面
+   · 退費（負數）不列入 —— 「最後繳費」指的是最後一次收到錢
+   回傳 'synced'（已退回上一筆）/ 'cleared'（已無紀錄，清空）/ 'error' */
+async function syncLastPay(sid){
+  if(!sid) return 'error';
+  const { data, error } = await sb.from('payments')
+    .select('pay_date,amount').eq('student_id', sid).gt('amount', 0)
+    .order('pay_date', { ascending:false }).limit(1);
+  if(error){ toast('最後繳費同步失敗：'+error.message); return 'error'; }
+
+  const last = (data||[])[0] || null;
+  const patch = { last_pay_date: last ? last.pay_date : null,
+                  last_pay_amount: last ? last.amount : null };
+  const s = DB.students.find(x=>x.id===sid);
+  if(s && s.pay===patch.last_pay_date && s.amt===patch.last_pay_amount){
+    return last ? 'synced' : 'cleared';          // 本來就一致，不用多寫一次
+  }
+  const { error:e2 } = await sb.from('students').update(patch).eq('id', sid);
+  if(e2){ toast('最後繳費同步失敗：'+e2.message); return 'error'; }
+  if(s){ s.pay = patch.last_pay_date; s.amt = patch.last_pay_amount; }
+  return last ? 'synced' : 'cleared';
+}
+
 // 編輯後刷新畫面；若學生 modal 開著，重新載入其繳費歷史
 function refreshAfterPayEdit(){
   render();
