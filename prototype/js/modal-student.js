@@ -134,6 +134,10 @@ async function saveStudent(){
   const prevTeacher = m.isNew ? null : (DB.students.find(x=>x.id===m.id)?.t || null);
   const rec={ name:m.name.trim(), teacher_id:m.t||null, instrument:m.inst, class_type:m.type,
     plan:m.plan, attended:m.attended||0, status:m.status, partner_id:partnerId, note:(m.note||'').trim()||null };
+  // 停課日：轉成停課時記下當天，轉離停課時清掉。已停課者再存檔不覆蓋原本的日期。
+  const was = m.isNew ? null : (DB.students.find(x=>x.id===m.id)||{}).stopped;
+  if(m.status==='停課') rec.stopped_at = was || new Date().toISOString();
+  else rec.stopped_at = null;
   let studentId=m.id;
   if(m.isNew){
     const { data, error } = await sb.from('students').insert(rec).select().single();

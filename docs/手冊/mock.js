@@ -22,6 +22,7 @@
     id, t, name, inst: '古箏', type: '個人', plan, attended, status,
     pay: T(-40), amt: plan === '季繳' ? 10000 : 3500,
     contact: '', partner: null, note: '', checked: false, notified: false, deleted: false,
+    stopped: null,
   }, extra || {});
 
   const STUDENTS = [
@@ -36,7 +37,9 @@
     S('s9', 't2', '謝佩璇', '季繳', 6, '在學', { type: '雙人', partner: 's8' }),
     S('s10', 't3', '劉柏睿', '季繳', 8, '在學', {}),
     S('s11', 't3', '楊雅筑', '季繳', 12, '在學', {}),
-    S('s12', 't3', '曾冠宇', '季繳', 2, '停課', { pay: T(-200) }),
+    S('s12', 't3', '曾冠宇', '季繳', 2, '停課', { pay: T(-200), stopped: T(-3) + 'T02:00:00Z' }),
+    // 一位有停課日、一位沒有（舊資料），讓手冊截圖能呈現兩種情況
+    S('s13', 't1', '何宜蓁', '季繳', 0, '停課', { pay: T(-150) }),
   ];
 
   const RENTALS = [

@@ -21,7 +21,10 @@
 .rpt-t1 col:nth-child(1){width:55%;} .rpt-t1 col:nth-child(2){width:45%;}
 .rpt-t2 col:nth-child(1){width:34%;} .rpt-t2 col:nth-child(2){width:22%;} .rpt-t2 col:nth-child(3){width:44%;}
 .rpt-t4 col:nth-child(1){width:18%;} .rpt-t4 col:nth-child(2){width:30%;} .rpt-t4 col:nth-child(3){width:26%;} .rpt-t4 col:nth-child(4){width:26%;}
-.rpt-t5 col:nth-child(1){width:26%;} .rpt-t5 col:nth-child(2){width:24%;} .rpt-t5 col:nth-child(3){width:26%;} .rpt-t5 col:nth-child(4){width:24%;}
+/* 已停課名單：姓名／老師／停課日／最後繳費／操作 */
+.rpt-t5 col:nth-child(1){width:21%;} .rpt-t5 col:nth-child(2){width:17%;}
+.rpt-t5 col:nth-child(3){width:17%;} .rpt-t5 col:nth-child(4){width:24%;}
+.rpt-t5 col:nth-child(5){width:21%;}
 .resume-btn{padding:5px 10px; border-radius:8px; border:1px solid var(--primary); background:#f0fdfa;
   color:var(--primary); font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap;}
 .resume-btn:active{background:#ccfbf1;}

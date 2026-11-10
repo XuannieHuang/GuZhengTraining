@@ -10,9 +10,9 @@ function payTotal(p){ return (p.amount||0)*(p.periods||1); }
 async function resumeStudent(id){
   const s=DB.students.find(x=>x.id===id); if(!s) return;
   if(!confirm(`確定將「${s.name}」復課（狀態改回「在學」）？`)) return;
-  const { error } = await sb.from('students').update({status:'在學'}).eq('id',id);
+  const { error } = await sb.from('students').update({status:'在學', stopped_at:null}).eq('id',id);
   if(error){ toast('復課失敗：'+error.message); return; }
-  s.status='在學';
+  s.status='在學'; s.stopped=null;
   render(); toast(`${s.name} 已復課（在學）`);
 }
 
@@ -98,17 +98,24 @@ function reportView(){
   }
 
   // ── 已停課（流失）名單 ──
+  // 停課日由近到遠；舊資料沒有停課日（系統以前沒記），排在後面、再依最後繳費日由近到遠
   const stopped = DB.students.filter(s=>s.status==='停課')
-    .sort((a,b)=>(a.pay||'').localeCompare(b.pay||''));
+    .sort((a,b)=>{
+      if(a.stopped && b.stopped) return b.stopped.localeCompare(a.stopped);
+      if(a.stopped) return -1;
+      if(b.stopped) return 1;
+      return (b.pay||'').localeCompare(a.pay||'');
+    });
   html += `<div class="section-title">🚪 已停課名單（${stopped.length}）</div>`;
   if(!stopped.length){
     html += `<div class="empty pad16">目前沒有停課學生</div>`;
   } else {
     html += `<table class="dtable rpt-t5">
-      <colgroup><col><col><col><col></colgroup>
-      <thead><tr><th>姓名</th><th>老師</th><th class="c">最後繳費</th><th class="c">操作</th></tr></thead><tbody>`;
+      <colgroup><col><col><col><col><col></colgroup>
+      <thead><tr><th>姓名</th><th>老師</th><th class="c">停課日</th><th class="c">最後繳費</th><th class="c">操作</th></tr></thead><tbody>`;
     stopped.forEach(s=>{
-      html += `<tr><td class="sname">${s.name}</td><td>${teacherName(s.t)||'—'}</td><td class="c">${fmtDate(s.pay)}</td>
+      html += `<tr><td class="sname">${s.name}</td><td>${teacherName(s.t)||'—'}</td>
+        <td class="c">${s.stopped?fmtDate(s.stopped.slice(0,10)):'—'}</td><td class="c">${fmtDate(s.pay)}</td>
         <td class="c"><button class="resume-btn" onclick="resumeStudent('${s.id}')">↩ 復課</button></td></tr>`;
     });
     html += `</tbody></table>`;
