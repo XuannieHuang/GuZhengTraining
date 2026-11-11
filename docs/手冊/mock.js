@@ -72,18 +72,63 @@
     // 租借彈窗：示範承租人建議清單
     suggest: () => {
       openRental(null);
-      const i = document.querySelector('#rov .inp');
+      const i = document.querySelector('#rov .ttl-inp');
       i.value = '楊'; renterInput('楊');
     },
     // 租借彈窗：示範非學生承租人
     nonstudent: () => {
       openRental(null);
-      const i = document.querySelector('#rov .inp');
+      const i = document.querySelector('#rov .ttl-inp');
       i.value = '何靜美'; renterInput('何靜美');
     },
     // 新增學生：把「一併登記首期繳費」打開
     firstpay: () => { openStudent(null); ui.smodal.name = '蔡宜臻'; ui.smodal.payOn = true; renderStudentModal(); },
+    // 編輯學生：把收合的「記一筆繳費」展開（看展開後的排版）
+    payon: () => { openStudent('s1'); ui.smodal.payOn = true; renderStudentModal(); },
+    // 桌機分頁式面板：切到「記繳費」／「紀錄」那一頁
+    paypane: () => { openStudent('s1'); if (typeof sPane === 'function') setTimeout(() => sPane('pay'), 300); },
+    logpane: () => { openStudent('s1'); if (typeof sPane === 'function') setTimeout(() => sPane('log'), 300); },
   };
+
+  /* 學生彈窗會去資料庫撈「繳費紀錄」與「老師異動歷史」。
+     demo 連不上，結果永遠顯示「尚無紀錄」—— 版面在有資料時會不會爆就測不到。
+     這裡把這兩張表攔下來回假資料（只攔 select，不碰其他語法）。 */
+  const FAKE = {
+    payments: [
+      { id: 'h1', student_id: 's1', billing: '季繳', periods: 1, amount: 10000, pay_date: T(-88) },
+      { id: 'h2', student_id: 's1', billing: '季繳', periods: 1, amount: 10000, pay_date: T(-178) },
+      { id: 'h3', student_id: 's1', billing: '季繳', periods: 2, amount: 10000, pay_date: T(-268) },
+      { id: 'h4', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-300) },
+      { id: 'h5', student_id: 's1', billing: '月繳', periods: 1, amount: -3500, pay_date: T(-310) },
+      { id: 'h6', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-340) },
+      { id: 'h7', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-370) },
+    ],
+    teacher_changes: [
+      { id: 'c1', student_id: 's1', from_teacher_id: 't2', to_teacher_id: 't1', changed_at: T(-200) },
+      { id: 'c2', student_id: 's1', from_teacher_id: null, to_teacher_id: 't2', changed_at: T(-400) },
+    ],
+  };
+  (function stubDb() {
+    // 只給桌機預覽頁（docs/rwd/demo.html）用。
+    // 手冊的示範頁不能吃這份假紀錄 —— 它一吃，手冊截圖就跟著變了。
+    if (!/\/rwd\//.test(location.pathname)) return;
+    if (typeof sb === 'undefined' || !sb.from) return;
+    const real = sb.from.bind(sb);
+    sb.from = (table) => {
+      if (!(table in FAKE)) return real(table);
+      let rows = FAKE[table].slice();
+      const api = {
+        select: () => api,
+        eq: (c, v) => { rows = rows.filter(r => r[c] === v); return api; },
+        gt: (c, v) => { rows = rows.filter(r => r[c] > v); return api; },
+        order: () => api,
+        limit: (n) => { rows = rows.slice(0, n); return api; },
+        insert: () => api, update: () => api, delete: () => api,
+        then: (res, rej) => Promise.resolve({ data: rows, error: null }).then(res, rej),
+      };
+      return api;
+    };
+  })();
 
   function paint() {
     DB.teachers = TEACHERS.map(t => Object.assign({}, t));
@@ -105,6 +150,7 @@
     if (m === 'newstudent') openStudent(null);
     if (m === 'rental') openRental('r1');
     if (m === 'newrental') openRental(null);
+    if (m === 'newplan') openPlan(null);
 
     const act = q.get('act');
     if (act && ACTIONS[act]) { ACTIONS[act](); if (!m && !/suggest|nonstudent|firstpay/.test(act)) render(); }

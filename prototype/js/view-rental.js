@@ -1,5 +1,6 @@
 /* view-rental.js — 器材租借頁（清單） */
 function rentalView(){
+  if(isDesk()) return deskRentalView();       // 桌機補樂器、方案、備註三欄
   const showReturned = ui.rentTab==='returned';
   let list = DB.rentals.filter(r=> showReturned ? r.status==='已還箏' : r.status==='租賃中');
   list.sort((a,b)=> (a.due||'9999')<(b.due||'9999')?-1:1);

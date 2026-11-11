@@ -5,28 +5,29 @@ function renderModal(){
   if(ui.modal.plan===null) ui.modal.plan=s.plan;
   if(ui.modal.amt===null) ui.modal.amt=s.amt||planPrice(s.inst,s.type,ui.modal.plan);
   const planOpts = s.inst==='琵琶' ? ['月繳','單堂'] : ['月繳','季繳','單堂'];
-  let host=document.getElementById('ov'); if(!host){ host=document.createElement('div'); host.id='ov'; document.body.appendChild(host); }
+  const host=modalHost('ov');   // 桌機掛進右欄，手機維持 document.body
   const size = ui.modal.plan==='季繳'?12:(ui.modal.plan==='單堂'?1:4);
   const total = ui.modal.amt * ui.modal.periods;
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closePay()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${s.name}　記一筆繳費<button class="sheet-x" onclick="closePay()" title="關閉" aria-label="關閉">✕</button></h3>
-      <div class="sub-h">${teacherName(s.t)} · ${s.inst}${s.type}班</div>
-      <div class="field"><label>方案</label><div class="chips">
+      <h3><span class="sheet-ttl"><span class="t">${s.name}</span>
+        <span class="s">記一筆繳費 · ${teacherName(s.t)} · ${s.inst}${s.type}班</span>
+      </span><span class="sheet-acts"><button class="sheet-x" onclick="closePay()" title="關閉" aria-label="關閉">✕</button></span></h3>
+      <div class="field f-plan"><label>方案</label><div class="chips">
         ${planOpts.map(p=>`<div class="chipbtn ${ui.modal.plan===p?'sel':''}" onclick="setPlan('${p}')">${p}<span class="chip-sub"> ${p==='季繳'?12:(p==='單堂'?1:4)}堂</span></div>`).join('')}
       </div></div>
-      <div class="field"><label>期數</label><div class="chips">
+      <div class="field f-att"><label>期數</label><div class="chips">
         ${[1,2,3].map(n=>`<div class="chipbtn ${ui.modal.periods===n?'sel':''}" onclick="setPeriods(${n})">${n} 期</div>`).join('')}
       </div></div>
-      <div class="field"><label>金額 <span class="sublabel">／期</span></label>
+      <div class="field f-amt"><label>金額／期</label>
         <input class="inp" type="number" inputmode="numeric" value="${ui.modal.amt}" oninput="ui.modal.amt=parseInt(this.value||'0',10)">
         <div class="presets">
           ${s.amt?`<div class="preset" onclick="setAmt(${s.amt})">上次 <b>$${s.amt}</b></div>`:''}
           <div class="preset" onclick="setAmt(${planPrice(s.inst,s.type,ui.modal.plan)})">常用價 <b>$${planPrice(s.inst,s.type,ui.modal.plan).toLocaleString()}</b></div>
         </div>
       </div>
-      <div class="field"><label>繳費日</label>
+      <div class="field f-date"><label>繳費日</label>
         <input class="inp" type="date" value="${ui.modal.date}" onchange="ui.modal.date=this.value"></div>
       <div class="summary"><span>合計（${ui.modal.periods} 期）</span><b>$${total.toLocaleString()}</b></div>
       <div class="hint">＊確認後「已上堂數」自動 −${size * ui.modal.periods} 堂（${s.attended} → ${s.attended - size*ui.modal.periods}）</div>

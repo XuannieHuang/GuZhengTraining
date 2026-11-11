@@ -9,7 +9,7 @@ function openTeacher(id){
 function renderTeacherModal(){
   const m=ui.tmodal; if(!m) return;
   const esc=(v)=>String(v==null?'':v).replace(/"/g,'&quot;');
-  let host=document.getElementById('tov'); if(!host){ host=document.createElement('div'); host.id='tov'; document.body.appendChild(host); }
+  const host=modalHost('tov');   // 桌機掛進右欄，手機維持 document.body
   const roleChips=['老師','主任'].map(o=>`<div class="chipbtn ${m.role===o?'sel':''}" onclick="tfield('role','${o}')">${o}</div>`).join('');
   let instOpts=[...new Set(PLANS.map(p=>p.instrument))]; if(!instOpts.length) instOpts=['古箏','琵琶'];
   m.inst.forEach(i=>{ if(!instOpts.includes(i)) instOpts.push(i); });  // 保留老師已有、但方案還沒建的樂器
@@ -17,10 +17,12 @@ function renderTeacherModal(){
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closeTeacher()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.isNew?'新增老師':'編輯老師'}<button class="sheet-x" onclick="closeTeacher()" title="關閉" aria-label="關閉">✕</button></h3>
-      <div class="field"><label>姓名</label><input class="inp" value="${esc(m.name)}" oninput="ui.tmodal.name=this.value"></div>
-      <div class="field"><label>角色</label><div class="chips">${roleChips}</div></div>
-      <div class="field"><label>教授樂器 <span class="sublabel">（可多選）</span></label><div class="chips">${instChips}</div></div>
+      <h3><span class="sheet-ttl">
+        <span class="t"><input class="ttl-inp" value="${esc(m.name)}" placeholder="老師姓名" oninput="ui.tmodal.name=this.value"></span>
+        <span class="s">${m.isNew?'新增老師':'編輯老師'}</span>
+      </span><span class="sheet-acts"><button class="sheet-x" onclick="closeTeacher()" title="關閉" aria-label="關閉">✕</button></span></h3>
+      <div class="field f-role"><label>角色</label><div class="chips">${roleChips}</div></div>
+      <div class="field f-inst"><label>教授樂器</label><div class="chips">${instChips}</div><div class="fieldhint">可多選</div></div>
       <div class="actions">
         <button class="btn ghost" onclick="closeTeacher()">取消</button>
         <button class="btn primary" onclick="saveTeacher()">${m.isNew?'新增':'儲存'}</button>

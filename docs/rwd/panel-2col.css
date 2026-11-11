@@ -1,0 +1,88 @@
+/* panel-2col.css — 提案：編輯面板改兩欄，寬度給它、不給表格
+ *
+ * 這是比稿檔，只有 docs/rwd/demo.html?p=2col 會載入，
+ * 正式的 prototype 完全沒有動。
+ *
+ * 要解決的問題：
+ *   表格 7 欄、內容都很短，卻佔了 1300px；
+ *   編輯學生 12 個欄位、要往下捲，卻只有 420px。
+ *   版面分配跟資訊量剛好相反。
+ *
+ * 做法：
+ *   1. 表格只佔它內容需要的寬度（不再讓「備註」欄去吸收多餘空間）
+ *   2. 剩下的寬度「全部」給右欄
+ *   3. 右欄夠寬時表單排成兩欄：左＝這個人是誰，右＝這個人的帳
+ *      （用 container query 看的是「面板自己多寬」，不是視窗多寬）
+ *   4. 還是不夠寬的話，開著面板時表格收掉「上次繳費／狀態」兩欄 ——
+ *      那兩筆資料在右邊的面板裡本來就看得到
+ */
+
+@media (min-width: 1024px) {
+
+  /* ── 1＋2：表格貼合內容，剩下的全給右欄 ─────────────────── */
+  #app:has(#side .overlay) {
+    grid-template-columns: minmax(0, max-content) minmax(380px, 1fr);
+    grid-template-areas: "header nav" "main side";
+  }
+  .dtable { width: auto; max-width: none; }
+  .dtable th.col-note, .dtable td.note { width: auto; max-width: 240px; white-space: normal; }
+  .dk-bar { max-width: none; }
+
+  /* 開著面板又不夠寬時，表格先讓步（這兩欄在右邊看得到） */
+  #app.narrow-edit .dk-table th:nth-child(5), #app.narrow-edit .dk-table td:nth-child(5),
+  #app.narrow-edit .dk-table th:nth-child(6), #app.narrow-edit .dk-table td:nth-child(6) { display: none; }
+
+  /* ── 3：面板兩欄 ─────────────────────────────────────── */
+  #side { container-type: inline-size; }
+
+  @container (min-width: 540px) {
+    #side .sheet {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0 26px; align-content: start; padding: 0 22px 20px;
+    }
+    #side .sheet h3 { grid-column: 1 / -1; }
+    #side .sheet .col-a { grid-column: 1; }
+    #side .sheet .col-b { grid-column: 2; }
+    #side .sheet .btn-del { grid-column: 1; justify-self: start; margin: 10px 0 0; }
+    #side .sheet .actions { grid-column: 2; margin-top: 10px; }
+
+    /* 右欄的「記一筆繳費」不必再往右縮排（它自己就是一欄了） */
+    #side .sheet .paybox { margin-left: 0; }
+    #side .sheet .col-b > .field:not(.paybox) { grid-template-columns: 72px minmax(0, 1fr); }
+
+    /* 收合狀態的記繳費在右欄最上面，一眼看得到 */
+    #side .sheet .col-b .paybox { margin-bottom: 14px; }
+  }
+}
+
+/* 左欄的寬度是被「篩選列」撐開的（它一排有 6 個控制項，max-content 約 780px），
+   不是被表格撐開。開著面板時讓篩選列換行，左欄才會縮回表格的寬度。 */
+@media (min-width: 1024px) {
+  #app:has(#side .overlay) .dk-bar { flex-wrap: wrap; max-width: 560px; }
+  #app:has(#side .overlay) .dk-search { width: 150px; }
+  #app:has(#side .overlay) .dk-prog { margin-left: auto; }
+}
+
+/* 歷史清單給自己的捲動框（一欄兩欄都適用）：
+   繳費紀錄會一直長，不能跟固定欄位搶同一塊空間。
+   有了上限之後，筆數再多表單本身都不用捲。 */
+@media (min-width: 1024px) {
+  #side .histbox {
+    overflow-y: auto; overscroll-behavior: contain;
+    border: 1px solid var(--line); border-radius: 10px; padding: 0 10px;
+  }
+  #side .f-hist   .histbox { max-height: 118px; }
+  #side .f-tchlog .histbox { max-height: 64px; }
+  #side .histbox .histrow:first-child { border-top: 0; }
+}
+
+/* 固定底列：刪除在左、取消／儲存在右，橫跨兩欄黏在面板底部 */
+@media (min-width: 1024px) {
+  #side .sheet-foot {
+    grid-column: 1 / -1; position: sticky; bottom: 0; z-index: 3;
+    display: flex; align-items: center; gap: 12px; margin-top: 12px;
+    background: var(--card); border-top: 1px solid var(--line); padding: 10px 0 2px;
+  }
+  #side .sheet-foot .btn-del { margin: 0; flex: 0 0 auto; }
+  #side .sheet-foot .actions { margin: 0; flex: 1 1 auto; max-width: 340px; margin-left: auto; }
+}

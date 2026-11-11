@@ -18,6 +18,7 @@ function checkRowHtml(s){
 }
 // 清單主體：搜尋時只重繪這塊（不動搜尋框，避免打斷注音組字）
 function checkBody(){
+  if(isDesk()) return deskCheckBody();        // 桌機版在 js/desktop.js
   const ats = activeTeachers();
   const orphans = DB.students.filter(s=>isActive(s) && (!s.t || !ats.find(t=>t.id===s.t)));
   const q = (ui.search||'').trim();
@@ -53,6 +54,7 @@ function checkBody(){
   return strip + body;
 }
 function checkView(){
+  if(isDesk()) return deskCheckView();        // 桌機版：老師頁籤改成表格分組列
   const ats = activeTeachers();
   const orphans = DB.students.filter(s=>isActive(s) && (!s.t || !ats.find(t=>t.id===s.t)));
   const valid = ats.map(t=>t.id); if(orphans.length) valid.push('__orphan');

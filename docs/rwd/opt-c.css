@@ -1,0 +1,30 @@
+/* ───────────────────────────────────────────────────────────
+   C：核對頁老師多欄並排（≥760px）
+   疊在 opt-a.css、opt-b.css 之上。
+
+   資料來源本來就是 DB.students.filter(s=>s.t===t.id)，
+   把 ui.tab 的單選改成逐一列出所有老師即可，資料層完全不動。
+   ─────────────────────────────────────────────────────────── */
+
+@media (min-width: 760px) {
+  /* 老師頁籤在這個模式下沒有意義（全部同時顯示），但狀態不刪，
+     縮回手機寬度時要能還原回單選。 */
+  .tabsrow .tabs { display: none; }
+  .tabsrow .searchbox2 { max-width: 420px; }
+
+  /* 每欄至少 300px —— 這是學生列「圈圈｜姓名｜已上堂數」排成一行所需的寬度。
+     低於這個值會被迫折行，姓名就會掉到圈圈下面。 */
+  .chk-cols {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 0 14px; align-items: start;
+  }
+  .chk-cols .chk-card { margin-bottom: 12px; }
+  /* 每欄的老師名當欄頭，捲動時固定看得到 */
+  .chk-colhead {
+    position: sticky; top: 0; z-index: 3;
+    background: var(--bg); padding: 2px 2px 8px;
+    font-size: 14px; font-weight: 800; color: var(--primary-d);
+  }
+  .chk-colhead .cnt { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+  .chk-cols .srow { padding: 11px 12px; }
+}

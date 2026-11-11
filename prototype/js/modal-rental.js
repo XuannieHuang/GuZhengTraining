@@ -29,13 +29,14 @@ function pickRenter(id){
 }
 function renterTeacherRow(){
   const tn=rentalTeacher(ui.rmodal);
-  return tn?`<div class="field tchrow"><label>老師 <span class="sublabel">（自動帶出）</span></label><div class="tchval">${tn}</div></div>`:'';
+  return tn?`<div class="field tchrow"><label>老師</label><div class="tchval">${tn}</div><div class="fieldhint">依承租人自動帶出</div></div>`:'';
 }
 function renterSug(){
   const m=ui.rmodal, q=(m.name||'').trim();
   if(m.sid){
     const s=DB.students.find(x=>x.id===m.sid);
-    return s?`<div class="rlink ok">已連結學生：${s.name}${teacherName(s.t)?' · '+teacherName(s.t):''}</div>`:'';
+    // 姓名在標題、老師在下面的欄位，這一行只負責回答「有沒有對應到系統裡的學生」
+    return s?`<div class="rlink ok">✓ 已對應系統學生</div>`:'';
   }
   if(!q) return '';
   const hit=DB.students.filter(s=>s.name&&s.name.includes(q)).slice(0,6);
@@ -47,38 +48,41 @@ function renderRentalModal(){
   const m=ui.rmodal; if(!m) return;
   const esc=(v)=>String(v==null?'':v).replace(/"/g,'&quot;');
   const chips=(key,opts)=>opts.map(o=>`<div class="chipbtn ${m[key]===o?'sel':''}" onclick="rfield('${key}','${o}')">${o}</div>`).join('');
-  let host=document.getElementById('rov'); if(!host){ host=document.createElement('div'); host.id='rov'; document.body.appendChild(host); }
+  const host=modalHost('rov');   // 桌機掛進右欄，手機維持 document.body
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closeRental()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.isNew?'新增器材租借':'器材租借'}<button class="sheet-x" onclick="closeRental()" title="關閉" aria-label="關閉">✕</button></h3>
-      <div class="field"><label>承租人姓名</label>
-        <input class="inp" value="${esc(m.name)}" oninput="renterInput(this.value)" oncompositionend="renterInput(this.value)" placeholder="輸入學生姓名">
-        <div id="rsug">${renterSug()}</div></div>
+      <h3><span class="sheet-ttl">
+        <span class="t"><input class="ttl-inp" value="${esc(m.name)}" placeholder="承租人姓名"
+          oninput="renterInput(this.value)" oncompositionend="renterInput(this.value)"></span>
+        <span class="s">${m.isNew?'新增租借':'編輯租借'}</span>
+        <div id="rsug">${renterSug()}</div>
+      </span><span class="sheet-acts"><button class="sheet-x" onclick="closeRental()" title="關閉" aria-label="關閉">✕</button></span></h3>
       <div id="rtch">${renterTeacherRow()}</div>
-      <div class="field"><label>樂器</label><div class="chips">${chips('inst',['古箏','琵琶'])}</div></div>
-      <div class="field"><label>方案</label><div class="chips">${chips('billing',['月繳','季繳'])}</div></div>
-      <div class="field"><label>繳費日</label>
+      <div class="field f-inst"><label>樂器</label><div class="chips">${chips('inst',['古箏','琵琶'])}</div></div>
+      <div class="field f-plan"><label>方案</label><div class="chips">${chips('billing',['月繳','季繳'])}</div></div>
+      <div class="field f-date"><label>繳費日</label>
         <input class="inp" type="date" value="${m.pay||''}" onchange="ui.rmodal.pay=this.value"></div>
-      <div class="field"><label>起租日</label>
+      <div class="field f-date"><label>起租日</label>
         <input class="inp" type="date" value="${m.start||''}" onchange="ui.rmodal.start=this.value;ui.rmodal.due=dueFromStart(this.value,ui.rmodal.billing);renderRentalModal()"></div>
-      <div class="field"><label>到期日</label>
+      <div class="field f-date"><label>到期日</label>
         <input class="inp" type="date" value="${m.due||''}" onchange="ui.rmodal.due=this.value"></div>
-      <div class="field"><label>備註</label><input class="inp" value="${esc(m.note)}" oninput="ui.rmodal.note=this.value"></div>
-      ${!m.isNew?`<div class="field"><label>狀態</label><div class="chips">${chips('status',['租賃中','已還箏'])}</div></div>`:''}
-      ${!m.isNew && m.status==='已還箏'?`<div class="field"><label>還箏日</label>
+      <div class="field f-note"><label>備註</label><input class="inp" value="${esc(m.note)}" oninput="ui.rmodal.note=this.value"></div>
+      ${!m.isNew?`<div class="field f-status"><label>狀態</label><div class="chips">${chips('status',['租賃中','已還箏'])}</div></div>`:''}
+      ${!m.isNew && m.status==='已還箏'?`<div class="field f-date"><label>還箏日</label>
         <input class="inp" type="date" value="${m.returned||today()}" onchange="ui.rmodal.returned=this.value"></div>`:''}
-      ${!m.isNew?`<div class="field"><label>租借歷史</label>
+      ${!m.isNew?`<div class="field f-hist"><label>租借歷史</label>
         ${m.logs===null ? '<div class="meta">載入中…</div>'
           : (m.logs.length ? m.logs.map((l,i)=>`<div class="histrow rent">
-              <span class="t-muted nowrap">繳費 ${fmtDate(l.pay_date)}</span>
+              <span class="hdate">${fmtDate2(l.pay_date)}</span>
               <span>${fmtDate2(l.start_date)} ～ ${fmtDate2(l.due_date)}</span>
               <button class="logdel" onclick="deleteRentalLog('${l.id}')" title="刪除這一期">✕</button></div>`).join('')
             : '<div class="meta">尚無歷史</div>')}
       </div>`:''}
       ${!m.isNew && m.status==='租賃中'?`
-        <div class="field"><label>續租繳費日 <span class="sublabel">（下一期的繳費日）</span></label>
-          <input class="inp" type="date" value="${m.renewPay||today()}" onchange="ui.rmodal.renewPay=this.value"></div>
+        <div class="field f-date"><label>續租繳費日</label>
+          <input class="inp" type="date" value="${m.renewPay||today()}" onchange="ui.rmodal.renewPay=this.value">
+          <div class="fieldhint">下一期的繳費日；租期從上一期到期日接續</div></div>
         <button class="btn ghost renew-btn" onclick="renewRental()">續租一期</button>`:''}
       <div class="actions">
         <button class="btn ghost" onclick="closeRental()">取消</button>

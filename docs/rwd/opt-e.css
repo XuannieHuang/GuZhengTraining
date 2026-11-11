@@ -1,0 +1,214 @@
+/* ───────────────────────────────────────────────────────────
+   E 案：重新設計的桌機版面（不疊在 A–D 上，自己一套）
+
+   出發點不是「把手機版放寬」，而是「桌機這台電腦前面的人要做什麼」：
+     · 導覽放頂部一行 —— 只有 5 個頁面，不值得長駐一整欄
+     · 待辦＋核對合成一張「學生工作台」—— 兩頁的資料本來就是同一份，
+       手機要拆開是因為一列塞不下，桌機塞得下就不該拆
+     · 表格寬度由內容決定，能在列上改的就在列上改
+     · 右欄只有在要改完整資料時才存在
+
+   斷點只有一個：<1024px 完全是現在的手機版，一行 CSS 都沒動。
+   ─────────────────────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+
+  /* ── 外殼 ───────────────────────────────────────────────
+     兩列：上面是整條頂部列（標題＋分頁），下面是內容（＋右欄）。 */
+  #app {
+    max-width: none; display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-areas: "header nav" "main main";
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  #app > header { grid-area: header; }
+  #app > nav    { grid-area: nav; }
+  #app > main   { grid-area: main; }
+
+  /* ── 頂部列 ─────────────────────────────────────────── */
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 8px 0 20px; height: 54px; border-bottom: 1px solid var(--line);
+    text-align: left; white-space: nowrap;
+  }
+  header h1 { font-size: 17px; }
+  header .sub { margin: 0; }
+  header .ava {
+    position: static; transform: none; order: -1;
+    width: 28px; height: 28px; font-size: 12px;
+  }
+  nav {
+    position: static; transform: none; width: auto; max-width: none;
+    justify-content: flex-end; align-items: center; gap: 2px;
+    padding: 0 18px; height: 54px;
+    border-top: 0; border-bottom: 1px solid var(--line);
+  }
+  nav button {
+    flex: 0 0 auto; flex-direction: row; gap: 7px;
+    padding: 8px 13px; font-size: 14px; border-radius: 9px;
+  }
+  nav button svg { width: 19px; height: 19px; }
+  nav button.active { background: var(--tint); }
+  .navbadge { position: static; transform: none; }
+
+  main   { padding: 18px 20px 32px; }
+  #toast { bottom: 22px; left: auto; right: 22px; transform: none; }
+
+  /* ── 表格：欄寬貼合內容，不用百分比把空白平均分掉 ────────── */
+  .dtable {
+    table-layout: auto; width: auto; max-width: 100%;
+  }
+  .dtable col:nth-child(n) { width: auto; }
+  .dtable th, .dtable td { padding: 9px 16px; white-space: nowrap; }
+  .dtable .note, .dtable td.sname .meta { white-space: normal; }
+  .dtable .note { max-width: 360px; }
+  .dtable tr.ghead td { padding: 7px 16px; }
+
+  /* ── 學生工作台 ─────────────────────────────────────── */
+  .dk-bar {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 12px;
+  }
+  .dk-f {
+    padding: 7px 14px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--card); font: inherit; font-size: 13.5px; font-weight: 600;
+    color: var(--muted); cursor: pointer; white-space: nowrap;
+  }
+  .dk-f b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .dk-f.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .dk-f.on b { color: #fff; }
+  .dk-search {
+    width: 220px; padding: 8px 12px; border: 1px solid var(--line);
+    border-radius: 9px; background: var(--fill); font-size: 14px; color: var(--ink);
+  }
+  .dk-prog {
+    margin-left: auto; font-size: 13px; color: var(--muted); white-space: nowrap;
+  }
+  .dk-prog b { color: var(--primary-d); font-variant-numeric: tabular-nums; }
+  .dk-add {
+    padding: 7px 14px; border-radius: 9px; border: 1px solid var(--primary);
+    background: var(--card); color: var(--primary-d);
+    font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+
+  /* 列上直接操作：勾選、堂數、記繳費 */
+  .dk-table .chk { width: 24px; height: 24px; border-width: 2px; font-size: 13px; }
+  .dk-table td.c-chk { padding-left: 16px; padding-right: 0; }
+  .dk-table .numwrap { gap: 3px; justify-content: center; }
+  .dk-table .num { width: 54px; font-size: 18px; padding: 6px 2px; }
+  .dk-table .signbtn { width: 26px; height: 32px; font-size: 16px; }
+  .dk-table tr.checked td { background: var(--green-bg); }
+  .dk-table tr.due td { background: #f9ddd6; }
+  .dk-table .ename { cursor: pointer; border-bottom: 1px dotted #94a3b8; font-weight: 600; }
+  .dk-pay {
+    padding: 5px 11px; border-radius: 8px; border: 1px solid var(--primary);
+    background: var(--card); color: var(--primary-d);
+    font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .dk-st { font-size: 12.5px; color: var(--meta); }
+
+  /* ── 其他頁：篩選列也用同一排，不另外佔一整排 ───────────── */
+  .rtabs, .ev-top { margin: 0 0 12px; }
+
+  /* 報表：攤成多欄儀表板，不要一整排小表格排成一條長龍 */
+  main:has(.dk-sec) {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 400px));
+    gap: 0 18px; align-items: start; align-content: start;
+  }
+  main:has(.dk-sec) > .addbar,
+  main:has(.dk-sec) > .dk-sec:has(.stat-grid) { grid-column: 1 / -1; }
+  .dk-sec > .section-title:first-child { margin-top: 10px; }
+  .dk-sec .dtable { width: 100%; }
+  .dk-sec .dtable th, .dk-sec .dtable td { padding: 8px 12px; }
+  .stat-grid { grid-template-columns: repeat(4, 1fr); max-width: 1080px; }
+  .exp-row { max-width: 440px; }
+  .ev-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 420px)); gap: 6px 12px; }
+  .ev-name { white-space: normal; overflow: visible; text-overflow: clip; }
+  main:has(> .set-head) {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 420px));
+    gap: 0 12px; align-content: start;
+  }
+  main:has(> .set-head) > .set-head,
+  main:has(> .set-head) > .resetlink,
+  main:has(> .set-head) > .empty,
+  main:has(> .set-head) > .meta { grid-column: 1 / -1; }
+
+  /* ── 右欄：選取的那一筆 ─────────────────────────────── */
+  /* 表格有多寬，main 就多寬 —— 不要讓篩選列被拉到螢幕邊緣，
+     「本梯已核對」要跟表格的右邊切齊 */
+  main:has(.dk-table),
+  main:has(.rtable) { width: max-content; max-width: 100%; }
+
+  #side {
+    display: none;
+    grid-area: side; border-left: 1px solid var(--line); background: var(--card);
+    position: sticky; top: 0; height: calc(100vh - 54px); overflow-y: auto;
+  }
+  .side-empty { display: none; }
+
+  #side .overlay {
+    position: static; inset: auto; background: none;
+    display: block; padding: 0; z-index: auto;
+  }
+  #side .sheet {
+    max-width: none; max-height: none; width: 100%;
+    border-radius: 0; animation: none; padding: 0 20px 24px;
+  }
+  #side .sheet .handle { display: none; }
+  #side .sheet h3 {
+    position: sticky; top: 0; z-index: 2; margin: 0 0 14px;
+    background: var(--card); padding: 14px 0 10px; border-bottom: 1px solid var(--line);
+  }
+  body.modal-open #app main { overflow-y: auto; }
+
+  /* 表單：標籤在左，每個控制項只佔它需要的寬度
+     （手機是「標籤在上、控制項整條寬」，那是 460px 下的作法，桌機照抄就會空一大片） */
+  #side .sheet .field:not(.paybox) {
+    display: grid; grid-template-columns: 84px minmax(0, 1fr);
+    align-items: start; gap: 6px 12px; margin-bottom: 10px;
+  }
+  #side .sheet .field:not(.paybox) > *:not(label) { grid-column: 2; }
+  #side .sheet .field:not(.paybox) > label {
+    margin: 0; padding-top: 8px; font-size: 12.5px; text-align: right; line-height: 1.3;
+  }
+  #side .sheet .field > label .sublabel { display: block; font-size: 10.5px; }
+  #side .sheet .inp { padding: 8px 11px; font-size: 14px; }
+  #side .sheet .chips { gap: 6px; }
+  #side .sheet .chipbtn { padding: 6px 11px; font-size: 13px; }
+  #side .sheet .f-name .inp { max-width: 190px; }
+  #side .sheet .f-att  .inp { max-width: 90px; text-align: center; font-weight: 700; font-size: 16px; }
+  #side .sheet .f-note textarea.inp { min-height: 62px; }
+  #side .sheet .field:not(.paybox) input[type="date"]   { width: auto; max-width: 180px; justify-self: start; }
+  #side .sheet .field:not(.paybox) input[type="number"] { max-width: 120px; }
+
+  #side .sheet .paybox {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px; padding: 10px 12px; margin-left: 96px;
+  }
+  #side .sheet .paybox > * { margin: 0 !important; }
+  #side .sheet .paybox > .paytoggle,
+  #side .sheet .paybox > .chips,
+  #side .sheet .paybox > .summary,
+  #side .sheet .paybox > .paybtn { grid-column: 1 / -1; }
+  #side .sheet .paybox .summary { padding: 8px 10px; font-size: 13px; }
+  #side .sheet .paybox .paybtn { padding: 10px; font-size: 14px; }
+
+  #side .sheet .btn-del {
+    display: inline-block; width: auto; margin: 4px 0 0 96px;
+    padding: 8px 14px; font-size: 13px;
+  }
+  #side .sheet .actions {
+    position: sticky; bottom: 0; margin-top: 10px; gap: 8px;
+    background: var(--card); padding: 10px 0 2px; border-top: 1px solid var(--line);
+  }
+}
+
+/* 1280px 以上才把彈窗變成右欄。
+   1024–1279 的寬度同時放工作台和面板會太擠，詳情維持原本的置中彈窗。 */
+@media (min-width: 1280px) {
+  #app:has(#side .overlay) {
+    grid-template-columns: max-content minmax(0, 1fr) 420px;
+    grid-template-areas: "header nav nav" "main main side";
+  }
+  #app:has(#side .overlay) > #side { display: block; }
+}

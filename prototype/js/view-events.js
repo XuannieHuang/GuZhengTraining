@@ -1,19 +1,20 @@
 /* view-events.js — 事件修正頁：查找並修正繳費／租箏紀錄（補登／改錯／退費／續租／還箏） */
 function openEvents(){ ui.screen='events'; if(REPORTS.payments===null) loadReportData(); render(); }
 function eventsView(){
+  if(isDesk()) return deskEventsView();       // 桌機版：卡片列改表格（js/desktop.js）
   const f=ui.evFilter||'all';
   const fchip=(v,l)=>`<div class="chipbtn ${f===v?'sel':''}" onclick="setEvFilter('${v}')">${l}</div>`;
   return `<div class="ev-top">
       <button class="ev-back" onclick="go('report')">‹ 返回</button>
       <div class="section-title">✎ 事件修正</div>
     </div>
-    <div class="hint2">補登／改錯／退費 — 點任一筆<b>繳費</b>可改金額·日期·刪除·退費；點<b>租箏</b>可改租期·續租·還箏。</div>
     <div class="chips ev-filter">${fchip('all','全部')}${fchip('pay','💲 繳費')}${fchip('rent','🎻 租箏')}</div>
     <input class="searchbox" placeholder="🔍 搜尋學生／承租人姓名" value="${ui.evSearch||''}" oninput="setEvSearch(this.value)" oncompositionend="setEvSearch(this.value)">
     <div id="evbody">${eventsBody()}</div>`;
 }
 // 清單主體：搜尋時只重繪這塊、不動搜尋框（同核對頁，避免手機注音被打斷／結果不更新）
 function eventsBody(){
+  if(isDesk()) return deskEventsBody();       // 搜尋時只重繪這塊，也要走桌機版
   const f=ui.evFilter||'all', q=(ui.evSearch||'').trim();
   let items=[];
   if(f!=='rent' && REPORTS.payments){

@@ -1,5 +1,6 @@
 /* view-settings.js — 設定頁（方案價、老師啟停用、管理者、登出） */
 function settingView(){
+  if(isDesk()) return deskSettingView();      // 桌機版：卡片列改表格（js/desktop.js）
   const order=(p)=>(p.instrument||'').localeCompare(p.instrument||'')*0 + ({'個人':0,'團體':1,'雙人':2}[p.class_type]??9)*10 + (p.billing==='月繳'?0:1);
   const plans=PLANS.slice().sort((a,b)=> (a.instrument+'').localeCompare(b.instrument+'') || order(a)-order(b));
   return `<div class="set-head"><div class="section-title">方案及價格</div><button class="set-addbtn" onclick="openPlan(null)">＋ 新增課程方案</button></div>

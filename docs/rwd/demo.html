@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桌機版預覽</title>
+<!--
+  桌機版預覽 —— 載入「真實的」prototype 程式（含 css/desktop.css、js/desktop.js），
+  資料沿用 docs/手冊/mock.js 的虛構姓名，不會連到正式資料庫。
+
+  用法：py tools/devserver.py 5503 .  然後開
+        /docs/rwd/demo.html?v=check
+        v = todo | check | rental | report | events | setting
+        m = pay | student | newstudent | rental | newrental
+
+  註：同資料夾的 opt-a~e.css 與 rwd-demo.js / rwd-e.js 是挑版面時的比稿檔，
+      已經被 prototype/css/desktop.css + prototype/js/desktop.js 取代，不再載入。
+      定案前後的對照圖留在 docs/rwd/圖/。
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="/prototype/css/base.css">
+<link rel="stylesheet" href="/prototype/css/login.css">
+<link rel="stylesheet" href="/prototype/css/todo.css">
+<link rel="stylesheet" href="/prototype/css/check.css">
+<link rel="stylesheet" href="/prototype/css/rental.css">
+<link rel="stylesheet" href="/prototype/css/report.css">
+<link rel="stylesheet" href="/prototype/css/events.css">
+<link rel="stylesheet" href="/prototype/css/settings.css">
+<link rel="stylesheet" href="/prototype/css/desktop.css">
+<script>
+  // ?p=<代號> 時疊上改版示意圖（比稿用，正式程式沒有這一層）
+  //   a1 學生管理·兩欄表單　a2 學生管理·分頁式
+  //   b1 設定·左子選單　　b2 設定·區段表格
+  var _p = new URLSearchParams(location.search).get('p') || '';
+  if (/^(a1|a2|b1|b2|c1)$/.test(_p))
+    document.write('<link rel="stylesheet" href="/docs/rwd/mock-proposals.css">');
+  if (/^(d[12]|e[12]|f[123])$/.test(_p))
+    document.write('<link rel="stylesheet" href="/docs/rwd/mock-panel.css">');
+</script>
+<style>
+  /* 截圖時不要有動畫，免得拍到中間狀態 */
+  *, *::before, *::after {
+    animation-duration: 0s !important; animation-delay: 0s !important;
+    transition: none !important;
+  }
+  .opt-badge {
+    position: fixed; left: 10px; bottom: 10px; z-index: 9999;
+    background: #1f2228; color: #fff; font: 700 12px/1 "Noto Sans TC", sans-serif;
+    padding: 7px 11px; border-radius: 8px; opacity: .85; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<div class="opt-badge">預覽 · 虛構資料</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/prototype/js/config.js"></script>
+<script src="/prototype/js/data.js"></script>
+<script src="/prototype/js/export.js"></script>
+<script src="/prototype/js/desktop.js"></script>
+<script src="/prototype/js/view-login.js"></script>
+<script src="/prototype/js/view-todo.js"></script>
+<script src="/prototype/js/view-check.js"></script>
+<script src="/prototype/js/view-rental.js"></script>
+<script src="/prototype/js/view-report.js"></script>
+<script src="/prototype/js/view-events.js"></script>
+<script src="/prototype/js/view-settings.js"></script>
+<script src="/prototype/js/modal-student.js"></script>
+<script src="/prototype/js/modal-payment.js"></script>
+<script src="/prototype/js/modal-payevent.js"></script>
+<script src="/prototype/js/modal-rental.js"></script>
+<script src="/prototype/js/modal-teacher.js"></script>
+<script src="/prototype/js/modal-plan.js"></script>
+<script src="/prototype/js/app.js"></script>
+<script src="/docs/手冊/mock.js"></script>
+<script src="/docs/rwd/mock-proposals.js"></script>
+<script src="/docs/rwd/mock-panel.js"></script>
+</body>
+</html>

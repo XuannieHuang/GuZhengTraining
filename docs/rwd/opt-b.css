@@ -1,0 +1,68 @@
+/* ───────────────────────────────────────────────────────────
+   B 案：A 案 ＋ 右側詳情面板（≥1100px）
+   疊在 opt-a.css 之上。
+
+   原本 6 個彈窗都是 document.body.appendChild 一個 overlay，
+   這裡只把掛載位置換到 #side，再把 .overlay 從「全螢幕遮罩」
+   降級成「普通區塊」，就變成常駐的右欄。手機寬度完全走原路徑。
+   ─────────────────────────────────────────────────────────── */
+
+/* 窄螢幕：右欄不存在 */
+#side { display: none; }
+
+@media (min-width: 1100px) {
+
+  #app {
+    max-width: 1480px;
+    grid-template-columns: 128px minmax(0, 1fr) 400px;
+    grid-template-areas: "nav header side" "nav main side";
+  }
+  #app > #side {
+    grid-area: side; display: block;
+    border-left: 1px solid var(--line); background: var(--card);
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+
+  /* overlay → 面板：拿掉遮罩、置中、固定定位與上滑動畫 */
+  #side .overlay {
+    position: static; inset: auto; background: none;
+    display: block; padding: 0; z-index: auto;
+  }
+  #side .sheet {
+    max-width: none; max-height: none; width: 100%;
+    border-radius: 0; animation: none; padding: 0 20px 28px;
+  }
+  /* 面板標題貼頂，長表單往下捲時還看得到自己在編誰 */
+  #side .sheet h3 {
+    position: sticky; top: 0; z-index: 2; margin: 0 0 14px;
+    background: var(--card); padding: 14px 0 10px; border-bottom: 1px solid var(--line);
+  }
+  /* 面板裡不需要手機版的拖曳握把 */
+  #side .sheet .handle { display: none; }
+  /* 儲存／取消貼底，長表單不用捲到最下面才按得到 */
+  #side .sheet .actions {
+    position: sticky; bottom: 0; margin-top: 10px;
+    background: var(--card); padding: 10px 0 2px; border-top: 1px solid var(--line);
+  }
+
+  /* 面板開著的時候，主內容照樣能捲（手機版才需要鎖背景） */
+  body.modal-open #app main { overflow-y: auto; }
+
+  /* 沒開任何詳情時的預設畫面 */
+  .side-empty { padding: 20px 20px; }
+  .side-empty h4 { margin: 0 0 12px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .side-empty .k { font-size: 24px; font-weight: 800; color: var(--primary); }
+  .side-empty .kl { font-size: 12px; color: var(--muted); margin: 2px 0 14px; }
+  .side-empty .srow-mini { display: flex; justify-content: space-between; gap: 10px;
+    padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .side-empty .srow-mini b { font-variant-numeric: tabular-nums; }
+  .side-empty .tip { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 16px; }
+  #side:has(.overlay) .side-empty { display: none; }
+
+  /* 主內容只剩約 900px，待辦表的備註欄要收一點 */
+  .dtable.todo col:nth-child(6) { width: 32%; }
+}
+
+@media (min-width: 1500px) {
+  .dtable.todo col:nth-child(6) { width: 42%; }
+}

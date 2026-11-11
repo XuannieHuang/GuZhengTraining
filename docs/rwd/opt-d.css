@@ -1,0 +1,100 @@
+/* ───────────────────────────────────────────────────────────
+   D 案：C 案的骨架 ＋ 重新排版的詳情面板
+   疊在 opt-a.css、opt-b.css、opt-c.css 之上。
+
+   使用者看完 A/B/C 的三個退件理由，這裡逐條對應：
+     ①「欄位放寬中間留白太多」
+        → 表格給上限寬度，不再把備註欄拉成一整片空白
+        → 沒開詳情時右欄整個收掉，主內容吃滿，不留空殼
+     ②「資訊內容多寡佔的版面大小沒有考慮到」
+        → 表單改成「標籤在左、控制項在右」，
+          每個欄位只佔它需要的寬度：姓名 200px、已上堂數 84px、備註才整條
+     ③「側欄放已核對／未核對對操作沒有幫助」
+        → 拿掉統計，沒選東西時右欄不存在
+   手機版（<760px）完全不受影響。
+   ─────────────────────────────────────────────────────────── */
+
+@media (min-width: 760px) {
+  /* ① 表格寬度由內容決定，不要用百分比把欄位撐滿螢幕。
+     手機版是 table-layout:fixed ＋百分比欄寬（460px 裡每一点寬度都要計較）；
+     桌機寬度夠，同一套规則就變成把空白平均分給每一欄，
+     所以這裡改回 auto：欄寬貼合內容，表格該多寬就多寬。 */
+  .dtable {
+    table-layout: auto; width: auto; min-width: 520px; max-width: 1080px;
+  }
+  .dtable col:nth-child(n),
+  .dtable.todo col:nth-child(n),
+  .dtable.rtable col:nth-child(n) { width: auto; }
+  .dtable th, .dtable td { padding: 10px 16px; white-space: nowrap; }
+  /* 只有備註需要長度，而且要有上限不然一筆長備註就把整張表撐開 */
+  .dtable .note,
+  .dtable td.sname .meta { white-space: normal; }
+  .dtable .note { max-width: 380px; }
+
+  .chk-cols { max-width: 1080px; }
+}
+
+@media (min-width: 1100px) {
+
+  /* ③ 右欄只在真的開了詳情時才存在 */
+  #app { grid-template-columns: 128px minmax(0, 1fr) 420px; }
+  #app:not(:has(#side .overlay)) {
+    grid-template-columns: 128px minmax(0, 1fr);
+    grid-template-areas: "nav header" "nav main";
+  }
+  #app:not(:has(#side .overlay)) > #side { display: none; }
+  .side-empty { display: none; }
+
+  /* ── ② 表單重排：標籤在左、控制項在右 ─────────────────── */
+  #side .sheet .field:not(.paybox) {
+    display: grid; grid-template-columns: 84px minmax(0, 1fr);
+    align-items: start; gap: 6px 12px; margin-bottom: 10px;
+  }
+  /* 一個 field 裡不只有一個控制項（例如承租人底下還有建議清單），
+     標籤以外的全部留在右邊那一欄往下排，不要溢到標籤欄 */
+  #side .sheet .field:not(.paybox) > *:not(label) { grid-column: 2; }
+  /* 注意：.paybox 本身也是一個 .field，但它的 label 是跟著勾選框的，
+     不能跟左側標籤欄一樣靠右對齊。 */
+  #side .sheet .field:not(.paybox) > label {
+    margin: 0; padding-top: 8px; font-size: 12.5px;
+    text-align: right; line-height: 1.3;
+  }
+  #side .sheet .inp { padding: 8px 11px; font-size: 14px; }
+  #side .sheet .chips { gap: 6px; }
+  #side .sheet .chipbtn { padding: 6px 11px; font-size: 13px; }
+
+  /* 每個欄位只佔它需要的寬度 */
+  #side .sheet .f-name .inp { max-width: 190px; }
+  #side .sheet .f-att  .inp { max-width: 84px; text-align: center; font-weight: 700; font-size: 16px; }
+  #side .sheet .f-note textarea.inp { min-height: 62px; }
+  #side .sheet .field:not(.paybox) input[type="date"]   { width: auto; max-width: 180px; justify-self: start; }
+  #side .sheet .field:not(.paybox) input[type="number"] { max-width: 120px; }
+  #side .sheet .field > label .sublabel { display: block; font-size: 10.5px; }
+
+  /* 歷史清單貼齊控制項那一欄，不要再多一層內縮 */
+  #side .sheet .f-hist .histrow:first-child,
+  #side .sheet .f-tchlog .histrow:first-child { border-top: 0; padding-top: 0; }
+
+  /* ── 記一筆繳費：收合時只是一行；展開後金額／日期、合計／按鈕各並一排 ── */
+  #side .sheet .paybox {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px; padding: 10px 12px; margin-left: 96px;
+  }
+  #side .sheet .paybox > * { margin: 0 !important; }
+  #side .sheet .paybox > .paytoggle,
+  #side .sheet .paybox > .chips,
+  #side .sheet .paybox > .summary,
+  #side .sheet .paybox > .paybtn { grid-column: 1 / -1; }
+  #side .sheet .paybox .summary { padding: 8px 10px; font-size: 13px; }
+  #side .sheet .paybox .summary b { font-size: 16px; }
+  #side .sheet .paybox .paybtn { padding: 10px; font-size: 14px; }
+  #side .sheet .paybox input[type="date"] { min-width: 0; width: 100%; }
+
+  /* 刪除鈕縮成一顆，不要跟底部「儲存」一樣整條寬 */
+  #side .sheet .btn-del {
+    display: inline-block; width: auto; margin: 4px 0 0 96px;
+    padding: 8px 14px; font-size: 13px;
+  }
+  #side .sheet .actions { gap: 8px; }
+  #side .sheet .actions .btn { padding: 11px; font-size: 15px; }
+}

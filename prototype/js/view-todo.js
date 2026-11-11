@@ -1,5 +1,6 @@
 /* view-todo.js — 待辦頁（即將完課表格 + 器材到期摘要） */
 function todoView(){
+  if(isDesk()) return deskTodoView();         // 桌機版：老師改成一欄，另補上次繳費
   const due = DB.students.filter(isDue);
   if(!due.length) return `<div class="empty todo-empty">目前沒有即將上完的學生 🎉</div>`;
   let html = `<div class="addbar"><button class="addstu" onclick="exportTodo()">⬇ 匯出待繳名單</button></div>

@@ -1,0 +1,97 @@
+/* ───────────────────────────────────────────────────────────
+   A 案：左側導覽 ＋ 單欄寬版
+   也是 B、C 兩案的共同底座（demo.html 會依序疊上去）。
+
+   做的事：把 460px 的上限放開、底部導覽改成左側欄，
+   寬螢幕下各頁多顯示原本被壓縮掉的資訊。不做右側詳情面板。
+   ─────────────────────────────────────────────────────────── */
+
+@media (min-width: 760px) {
+
+  /* 外殼：用 grid 把 header/main/nav 重排成「左導覽 ＋ 右內容」。
+     DOM 順序不用改，只靠 grid-template-areas 指派位置。 */
+  #app {
+    max-width: 1040px;
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr);
+    grid-template-areas: "nav header" "nav main";
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  #app > header { grid-area: header; }
+  #app > main   { grid-area: main; }
+  #app > nav    { grid-area: nav; }
+
+  /* 導覽：解除 fixed 與置中位移，改成貼左的直向欄 */
+  nav {
+    position: sticky; top: 0; left: auto; bottom: auto;
+    transform: none; width: 128px; max-width: none; height: 100vh;
+    flex-direction: column; justify-content: flex-start; gap: 2px;
+    border-top: 0; border-right: 1px solid var(--line);
+    padding: 14px 10px;
+  }
+  /* 側邊欄夠寬 → 圖示與文字並排，看起來才像桌機的選單 */
+  nav button {
+    flex: 0 0 auto; flex-direction: row; justify-content: flex-start;
+    gap: 10px; padding: 11px 10px; font-size: 14px; border-radius: 10px;
+  }
+  nav button.active { background: var(--tint); }
+  .navbadge { position: static; transform: none; margin-left: auto; }
+
+  /* 底部 nav 不在了，原本替它讓位的空間要收掉 */
+  main   { padding: 16px 20px 28px; }
+  #toast { bottom: 24px; left: auto; right: 24px; transform: none; }
+
+  /* header 自己當定位基準，右上角頭像才不會跑到整個版面的最右邊 */
+  header { position: sticky; text-align: left; padding: 12px 20px; }
+  header .ava { right: 20px; }
+
+  /* 彈窗可以寬一點，長表單不用捲那麼久 */
+  .sheet { max-width: 620px; }
+
+  .dtable th, .dtable td { padding: 10px 10px; }
+
+  /* 待辦：原本 90/54/86px 是固定寬，放寬後備註欄會獨吞所有剩餘空間，
+     所以一律改百分比。欄位由 rwd-demo.js 補成 6 欄。 */
+  .dtable.todo col:nth-child(1) { width: 15%; }   /* 姓名 */
+  .dtable.todo col:nth-child(2) { width: 10%; }   /* 老師 */
+  .dtable.todo col:nth-child(3) { width: 10%; }   /* 方案 */
+  .dtable.todo col:nth-child(4) { width:  9%; }   /* 已上堂數 */
+  .dtable.todo col:nth-child(5) { width: 14%; }   /* 上次繳費 */
+  .dtable.todo col:nth-child(6) { width: 42%; }   /* 備註 */
+
+  /* 租借：補上樂器、方案兩欄（由 rwd-demo.js 補成 6 欄） */
+  .dtable.rtable col:nth-child(1) { width: 25%; }   /* 姓名／備註 */
+  .dtable.rtable col:nth-child(2) { width: 11%; }   /* 樂器 */
+  .dtable.rtable col:nth-child(3) { width: 11%; }   /* 方案 */
+  .dtable.rtable col:nth-child(4) { width: 15%; }   /* 起租日 */
+  .dtable.rtable col:nth-child(5) { width: 16%; }   /* 到期日 */
+  .dtable.rtable col:nth-child(6) { width: 22%; }   /* 狀態 */
+
+  /* 報表：統計卡 2 欄 → 4 欄 */
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+  .exp-row { max-width: 460px; }
+
+  /* 核對：列拉寬後把資訊往兩側拉開 */
+  .srow { padding: 12px 16px; }
+
+  /* 事件：卡片列改成兩欄，姓名不再截斷 */
+  .ev-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; }
+  .ev-name { white-space: normal; overflow: visible; text-overflow: clip; }
+
+  /* 設定：三個區段的卡片兩欄並排。
+     卡片與區段標題是平輩，沒有包裝元素可抓，
+     所以用 :has() 認出設定頁的 main，再讓標題整列獨佔。 */
+  main:has(> .set-head) {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px; align-content: start;
+  }
+  main:has(> .set-head) > .set-head,
+  main:has(> .set-head) > .resetlink,
+  main:has(> .set-head) > .empty,
+  main:has(> .set-head) > .meta { grid-column: 1 / -1; }
+}
+
+@media (min-width: 1100px) {
+  #app { max-width: 1240px; }
+  main { padding: 20px 28px 32px; }
+}

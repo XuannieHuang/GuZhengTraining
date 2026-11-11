@@ -1,0 +1,111 @@
+/* mock-proposals.css — 改版示意圖（比稿用，正式程式沒有這一層）
+ *
+ * docs/rwd/demo.html?p=<代號>
+ *   a1  學生管理 · 兩欄表單（左＝基本資料／右＝繳費）
+ *   a2  學生管理 · 分頁式（資料／繳費／歷史，一次只看一組）
+ *   b1  設定 · 左子選單＋表格
+ *   b2  設定 · 區段表格（沒有子選單）
+ *
+ * 樣式一律沿用現行系統的 .dtable / .card / .chipbtn / .badge，
+ * 不引進新的視覺語彙。
+ */
+
+@media (min-width: 1024px) {
+
+/* ══════════════════════════════════════════════════════════
+   a1：學生管理 · 兩欄表單
+   表格只佔內容寬度，剩下的全給右欄；右欄夠寬就把表單排成兩欄。
+   左＝這個人是誰，右＝這個人的帳。
+   ══════════════════════════════════════════════════════════ */
+body[data-p="a1"] #app:has(#side .overlay) {
+  grid-template-columns: minmax(0, max-content) minmax(380px, 1fr);
+  grid-template-areas: "header nav" "main side";
+}
+body[data-p="a1"] .dtable { width: auto; max-width: none; }
+body[data-p="a1"] .dk-bar { flex-wrap: wrap; max-width: 620px; }
+body[data-p="a1"] .dk-search { width: 180px; }
+body[data-p="a1"] #side { container-type: inline-size; }
+
+@container (min-width: 540px) {
+  body[data-p="a1"] #side .sheet {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 26px; align-content: start; padding: 0 22px 20px;
+  }
+  body[data-p="a1"] #side .sheet h3 { grid-column: 1 / -1; }
+  body[data-p="a1"] #side .sheet .col-a { grid-column: 1; }
+  body[data-p="a1"] #side .sheet .col-b { grid-column: 2; }
+  body[data-p="a1"] #side .sheet .paybox { margin-left: 0; margin-bottom: 14px; }
+  body[data-p="a1"] #side .sheet .col-b > .field:not(.paybox) { grid-template-columns: 72px minmax(0, 1fr); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   a2：學生管理 · 分頁式
+   面板上方三個小頁籤，一次只顯示一組 —— 面板維持單欄，但永遠不用捲。
+   ══════════════════════════════════════════════════════════ */
+body[data-p="a2"] #app:has(#side .overlay) {
+  grid-template-columns: minmax(0, max-content) minmax(380px, 460px);
+  grid-template-areas: "header nav" "main side";
+}
+body[data-p="a2"] .dtable { width: auto; max-width: none; }
+body[data-p="a2"] .sheet-tabs {
+  display: flex; gap: 6px; margin: 0 0 14px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+body[data-p="a2"] .sheet-tabs button {
+  flex: 1; padding: 7px 10px; border-radius: 9px; border: 1px solid var(--line);
+  background: var(--card); font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+body[data-p="a2"] .sheet-tabs button.on {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+}
+body[data-p="a2"] .sheet-tabs button .n { opacity: .75; font-size: 11.5px; margin-left: 3px; }
+body[data-p="a2"] .pane-hide { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════
+   b1：設定 · 左子選單＋表格
+   設定裡其實是三件不相干的事，攤在同一頁要一直往下捲。
+   左邊一排子選單，右邊只顯示選到的那一組，並且用表格取代卡片。
+   ══════════════════════════════════════════════════════════ */
+body[data-p="b1"] main:has(.setnav) {
+  display: grid; grid-template-columns: 168px minmax(0, 1fr);
+  gap: 0 22px; align-items: start;
+}
+body[data-p="b1"] .setnav { display: flex; flex-direction: column; gap: 2px; }
+body[data-p="b1"] .setnav button {
+  text-align: left; padding: 9px 12px; border-radius: 9px; border: 0;
+  background: none; font: inherit; font-size: 14px; color: var(--ink); cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+body[data-p="b1"] .setnav button .n { font-size: 12px; color: var(--muted); }
+body[data-p="b1"] .setnav button.on { background: var(--tint); color: var(--primary-d); font-weight: 700; }
+body[data-p="b1"] .setnav button.on .n { color: var(--primary-d); }
+body[data-p="b1"] .setpane { min-width: 0; }
+body[data-p="b1"] .setpane .set-head { margin-top: 0; }
+body[data-p="b1"] .setpane .dtable { width: 100%; max-width: 760px; }
+
+/* ══════════════════════════════════════════════════════════
+   b2：設定 · 區段表格（沒有子選單）
+   維持現在「一頁看完」的結構，只把卡片列換成表格 ——
+   方案的樂器／類型／繳別／堂數／價格本來就是五個欄位，擠成一行很難掃。
+   ══════════════════════════════════════════════════════════ */
+body[data-p="b2"] main:has(.setpane) { display: block; }
+body[data-p="b2"] .setpane { max-width: 860px; }
+body[data-p="b2"] .setpane .dtable { width: 100%; max-width: 860px; margin-bottom: 20px; }
+
+/* c1：事件修正 · 表格 */
+body[data-p="c1"] .ev-tbl { max-width: 980px; }
+body[data-p="c1"] .ev-tbl tbody tr { cursor: pointer; }
+body[data-p="c1"] .dk-bar { flex-wrap: wrap; }
+
+/* 兩案共用的設定表格零件 */
+.set-tbl .c { text-align: center; }
+.set-tbl .price { font-weight: 800; }
+.set-tbl .rowbtn {
+  padding: 4px 11px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--card); font: inherit; font-size: 12.5px; font-weight: 700;
+  color: var(--primary-d); cursor: pointer; white-space: nowrap;
+}
+.set-tbl .rowbtn.off { border-color: #fca5a5; color: var(--red); }
+.set-tbl tr.inactive td { opacity: .55; }
+}

@@ -13,23 +13,25 @@ function openPayEvent(id){
 }
 function renderPayEvent(){
   const m=ui.pemodal; if(!m) return;
-  let host=document.getElementById('peov'); if(!host){ host=document.createElement('div'); host.id='peov'; document.body.appendChild(host); }
+  const host=modalHost('peov');   // 桌機掛進右欄，手機維持 document.body
   const planOpts=['月繳','季繳','單堂'];
   const total=m.amount*m.periods;
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closePayEvent()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.sname}　編輯繳費<button class="sheet-x" onclick="closePayEvent()" title="關閉" aria-label="關閉">✕</button></h3>
-      <div class="sub-h">修正這筆繳費紀錄（補登／改錯／退費）· 不影響已上堂數</div>
-      <div class="field"><label>方案</label><div class="chips">
+      <h3><span class="sheet-ttl"><span class="t">${m.sname}</span>
+        <span class="s">編輯繳費 · 不影響已上堂數</span>
+      </span><span class="sheet-acts"><button class="sheet-x" onclick="closePayEvent()" title="關閉" aria-label="關閉">✕</button></span></h3>
+      <div class="field f-plan"><label>方案</label><div class="chips">
         ${planOpts.map(p=>`<div class="chipbtn ${m.billing===p?'sel':''}" onclick="peField('billing','${p}')">${p}</div>`).join('')}
       </div></div>
-      <div class="field"><label>期數</label><div class="chips">
+      <div class="field f-att"><label>期數</label><div class="chips">
         ${[1,2,3].map(n=>`<div class="chipbtn ${m.periods===n?'sel':''}" onclick="peField('periods',${n})">${n} 期</div>`).join('')}
       </div></div>
-      <div class="field"><label>金額／期 <span class="sublabel">（退費可填負數）</span></label>
-        <input class="inp" type="number" inputmode="numeric" value="${m.amount}" oninput="ui.pemodal.amount=parseInt(this.value||'0',10);peTotal()"></div>
-      <div class="field"><label>繳費日</label>
+      <div class="field f-amt"><label>金額／期</label>
+        <input class="inp" type="number" inputmode="numeric" value="${m.amount}" oninput="ui.pemodal.amount=parseInt(this.value||'0',10);peTotal()">
+        <div class="fieldhint">退費可填負數</div></div>
+      <div class="field f-date"><label>繳費日</label>
         <input class="inp" type="date" value="${m.date}" onchange="ui.pemodal.date=this.value"></div>
       <div class="summary"><span>合計（${m.periods} 期）</span><b id="pe-total" class="${total<0?'t-red':''}">$${total.toLocaleString()}</b></div>
       <div class="actions">

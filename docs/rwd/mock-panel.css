@@ -1,0 +1,153 @@
+/* mock-panel.css — 側欄面板排版整理（示意圖，正式程式沒有這一層）
+ *
+ *   ?p=d1  刪除放標題列的「⋯」選單
+ *   ?p=d2  刪除放基本資料分頁底部的「危險操作」區
+ *
+ * 兩案其餘的排版修正完全一樣，差別只有刪除怎麼擺。
+ */
+
+body[data-p="d1"] .fieldhint, body[data-p="d2"] .fieldhint,
+body[data-p="e1"] .fieldhint, body[data-p="e2"] .fieldhint,
+body[data-p="f1"] .fieldhint, body[data-p="f2"] .fieldhint, body[data-p="f3"] .fieldhint {
+  font-size: 11.5px; color: var(--muted); line-height: 1.45; margin-top: 5px;
+}
+
+/* ── 面板標題：記錄本身的身分，不是重複頁名 ───────────────── */
+body[data-p="d1"] .sheet h3, body[data-p="d2"] .sheet h3,
+body[data-p="e1"] .sheet h3, body[data-p="e2"] .sheet h3,
+body[data-p="f1"] .sheet h3, body[data-p="f2"] .sheet h3, body[data-p="f3"] .sheet h3 { align-items: flex-start; }
+.sheet-ttl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sheet-ttl .t { font-size: 17px; font-weight: 900; line-height: 1.25; }
+.sheet-ttl .s { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.sheet-acts { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; position: relative; }
+
+/* ── d1：標題列的「⋯」選單 ───────────────────────────────── */
+.sheet-more {
+  border: 0; background: var(--fill); color: var(--muted);
+  width: 32px; height: 30px; border-radius: 9px;
+  font: inherit; font-size: 17px; line-height: 1; cursor: pointer;
+}
+.sheet-menu {
+  position: absolute; top: 36px; right: 0; z-index: 9;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow-card); padding: 5px; min-width: 176px;
+}
+.sheet-menu[hidden] { display: none; }
+.sheet-menu button {
+  display: block; width: 100%; text-align: left; border: 0; background: none;
+  padding: 9px 11px; border-radius: 8px; font: inherit; font-size: 13.5px;
+  color: var(--red); cursor: pointer; white-space: nowrap;
+}
+.sheet-menu button:hover { background: var(--red-bg); }
+
+/* ── d2：基本資料分頁底部的「危險操作」區 ─────────────────── */
+.danger-zone {
+  margin-top: 22px; padding: 12px 14px;
+  border: 1px solid #fecaca; border-radius: 12px; background: var(--red-bg);
+}
+.danger-zone .dz-t { font-size: 12.5px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+.danger-zone .dz-d { font-size: 11.5px; color: var(--meta); line-height: 1.5; margin-bottom: 10px; }
+.danger-zone .btn-del { margin: 0; width: auto; display: inline-block; padding: 8px 14px; font-size: 13px; }
+
+@media (min-width: 1024px) {
+
+  /* ── 1. 標籤欄：加寬並且永不折行 ───────────────────────────
+     84px 塞不下「續租繳費日」這種五個字的標籤，更塞不下後面的括號提示，
+     折成兩三行之後標籤就跟它的控制項對不齊了。 */
+  body[data-p="d1"] #side .sheet .field:not(.paybox),
+  body[data-p="d2"] #side .sheet .field:not(.paybox) {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+  body[data-p="d1"] #side .sheet .field:not(.paybox) > label,
+  body[data-p="d2"] #side .sheet .field:not(.paybox) > label {
+    white-space: nowrap; padding-top: 9px;
+  }
+  /* 提示文字搬到控制項下面之後，標籤那一欄只剩單行，垂直自然就對齊了 */
+  body[data-p="d1"] #side .sheet .tchrow .tchval,
+  body[data-p="d2"] #side .sheet .tchrow .tchval { padding-top: 8px; }
+
+  /* ── 2. 記繳費分頁：去掉底框，它本身就是一整頁 ───────────── */
+  body[data-p="d1"] #side .sheet-tabs ~ .paybox,
+  body[data-p="d2"] #side .sheet-tabs ~ .paybox {
+    background: none; border: 0; padding: 0; margin-left: 0;
+    display: block;
+  }
+  body[data-p="d1"] #side .sheet-tabs ~ .paybox > *,
+  body[data-p="d2"] #side .sheet-tabs ~ .paybox > * { margin-bottom: 10px !important; }
+  body[data-p="d1"] #side .sheet-tabs ~ .paybox .payrow,
+  body[data-p="d2"] #side .sheet-tabs ~ .paybox .payrow {
+    display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 8px;
+  }
+  body[data-p="d1"] #side .sheet-tabs ~ .paybox .summary,
+  body[data-p="d2"] #side .sheet-tabs ~ .paybox .summary { padding: 12px 14px; font-size: 14px; }
+  body[data-p="d1"] #side .sheet-tabs ~ .paybox .summary b,
+  body[data-p="d2"] #side .sheet-tabs ~ .paybox .summary b { font-size: 20px; }
+  body[data-p="d1"] #side .sheet-tabs ~ .paybox .paybtn,
+  body[data-p="d2"] #side .sheet-tabs ~ .paybox .paybtn { padding: 13px; font-size: 15px; }
+
+  /* ── 3. 歷史清單：日期欄固定寬度，金額靠右對齊 ───────────── */
+  body[data-p="d1"] #side .histrow .hdate,
+  body[data-p="d2"] #side .histrow .hdate {
+    flex: 0 0 84px; color: var(--meta); font-variant-numeric: tabular-nums;
+  }
+}
+
+/* e1：標題就是姓名（可直接改），所以下面不再有姓名欄 */
+.sheet-ttl .ttl-inp {
+  border: 0; background: none; padding: 0; margin: 0;
+  font: inherit; font-size: 20px; font-weight: 900; color: var(--ink);
+  width: 100%; border-bottom: 1.5px dashed var(--line);
+}
+.sheet-ttl .ttl-inp:focus { outline: none; border-bottom-color: var(--primary); }
+.sheet-ttl .rlink { margin-top: 6px; }
+
+/* e 案沿用 d 案的桌機排版 */
+@media (min-width: 1024px) {
+  body[data-p="e1"] #side .sheet .field:not(.paybox),
+  body[data-p="e2"] #side .sheet .field:not(.paybox) { grid-template-columns: 96px minmax(0, 1fr); }
+  body[data-p="e1"] #side .sheet .field:not(.paybox) > label,
+  body[data-p="e2"] #side .sheet .field:not(.paybox) > label { white-space: nowrap; padding-top: 9px; }
+  body[data-p="e1"] #side .sheet .tchrow .tchval,
+  body[data-p="e2"] #side .sheet .tchrow .tchval { padding-top: 8px; }
+  body[data-p="e1"] #side .sheet-tabs ~ .paybox,
+  body[data-p="e2"] #side .sheet-tabs ~ .paybox { background: none; border: 0; padding: 0; margin-left: 0; display: block; }
+  body[data-p="e1"] #side .sheet-tabs ~ .paybox > *,
+  body[data-p="e2"] #side .sheet-tabs ~ .paybox > * { margin-bottom: 10px !important; }
+  body[data-p="e1"] #side .sheet-tabs ~ .paybox .payrow,
+  body[data-p="e2"] #side .sheet-tabs ~ .paybox .payrow { display: grid; grid-template-columns: minmax(0,0.8fr) minmax(0,1.2fr); gap: 8px; }
+  body[data-p="e1"] #side .histrow .hdate,
+  body[data-p="e2"] #side .histrow .hdate { flex: 0 0 84px; color: var(--meta); font-variant-numeric: tabular-nums; }
+}
+
+/* ── 刪除的三個精簡版 ─────────────────────────────────────
+   後果（保留什麼、無法還原）在確認視窗裡本來就會列出，
+   面板上再寫一次是重複，而且整塊紅底會讓人以為按下去就沒了。 */
+.dz { margin-top: 20px; }
+.dz-a {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px;
+}
+.dz-a .dz-d { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+.dz-a .btn-del { margin: 0; width: auto; flex: 0 0 auto; padding: 6px 12px; font-size: 12.5px; }
+.dz-b { text-align: center; }
+.dz-link {
+  border: 0; background: none; padding: 4px; font: inherit; font-size: 13px;
+  color: var(--red); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.dz-c .btn-del { margin: 0; width: auto; display: inline-block; padding: 8px 14px; font-size: 13px; }
+.dz-c .dz-d { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+
+@media (min-width: 1024px) {
+  body[data-p="f1"] #side .sheet .field:not(.paybox),
+  body[data-p="f2"] #side .sheet .field:not(.paybox),
+  body[data-p="f3"] #side .sheet .field:not(.paybox) { grid-template-columns: 96px minmax(0, 1fr); }
+  body[data-p="f1"] #side .sheet .field:not(.paybox) > label,
+  body[data-p="f2"] #side .sheet .field:not(.paybox) > label,
+  body[data-p="f3"] #side .sheet .field:not(.paybox) > label { white-space: nowrap; padding-top: 9px; }
+  body[data-p="f1"] #side .sheet-tabs ~ .paybox,
+  body[data-p="f2"] #side .sheet-tabs ~ .paybox,
+  body[data-p="f3"] #side .sheet-tabs ~ .paybox { background: none; border: 0; padding: 0; margin-left: 0; display: block; }
+  body[data-p="f1"] #side .histrow .hdate,
+  body[data-p="f2"] #side .histrow .hdate,
+  body[data-p="f3"] #side .histrow .hdate { flex: 0 0 84px; color: var(--meta); font-variant-numeric: tabular-nums; }
+}

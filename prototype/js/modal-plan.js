@@ -9,19 +9,23 @@ function openPlan(id){
 function renderPlanModal(){
   const m=ui.pmodal; if(!m) return;
   const esc=(v)=>String(v==null?'':v).replace(/"/g,'&quot;');
-  let host=document.getElementById('pov'); if(!host){ host=document.createElement('div'); host.id='pov'; document.body.appendChild(host); }
+  const host=modalHost('pov');   // 桌機掛進右欄，手機維持 document.body
   const billChips=['月繳','季繳','單堂'].map(o=>`<div class="chipbtn ${m.billing===o?'sel':''}" onclick="pfield('billing','${o}')">${o}</div>`).join('');
   host.innerHTML=`<div class="overlay" onclick="if(event.target===this)closePlan()">
     <div class="sheet">
       <div class="handle"></div>
-      <h3>${m.isNew?'新增方案':'編輯方案'}<button class="sheet-x" onclick="closePlan()" title="關閉" aria-label="關閉">✕</button></h3>
-      <div class="field"><label>學習樂器 <span class="sublabel">（可自由打字，例如 古箏、琵琶、二胡…）</span></label>
-        <input class="inp" value="${esc(m.instrument)}" oninput="ui.pmodal.instrument=this.value"></div>
-      <div class="field"><label>授課類型 <span class="sublabel">（可自由打字，例如 個人、團體、雙人…）</span></label>
-        <input class="inp" value="${esc(m.class_type)}" oninput="ui.pmodal.class_type=this.value"></div>
-      <div class="field"><label>方案</label><div class="chips">${billChips}</div></div>
-      <div class="field"><label>堂數</label><input class="inp" type="number" inputmode="numeric" value="${m.sessions}" oninput="ui.pmodal.sessions=parseInt(this.value||'0',10)"></div>
-      <div class="field"><label>價格（新生套用）</label><input class="inp" type="number" inputmode="numeric" value="${m.price}" oninput="ui.pmodal.price=parseInt(this.value||'0',10)"></div>
+      <h3><span class="sheet-ttl"><span class="t">${m.isNew?'新增方案':'編輯方案'}</span></span>
+        <span class="sheet-acts"><button class="sheet-x" onclick="closePlan()" title="關閉" aria-label="關閉">✕</button></span></h3>
+      <div class="field f-inst"><label>學習樂器</label>
+        <input class="inp" value="${esc(m.instrument)}" oninput="ui.pmodal.instrument=this.value">
+        <div class="fieldhint">可自由打字，例如 古箏、琵琶、二胡…</div></div>
+      <div class="field f-type"><label>授課類型</label>
+        <input class="inp" value="${esc(m.class_type)}" oninput="ui.pmodal.class_type=this.value">
+        <div class="fieldhint">可自由打字，例如 個人、團體、雙人…</div></div>
+      <div class="field f-plan"><label>方案</label><div class="chips">${billChips}</div></div>
+      <div class="field f-att"><label>堂數</label><input class="inp" type="number" inputmode="numeric" value="${m.sessions}" oninput="ui.pmodal.sessions=parseInt(this.value||'0',10)"></div>
+      <div class="field f-amt"><label>價格</label><input class="inp" type="number" inputmode="numeric" value="${m.price}" oninput="ui.pmodal.price=parseInt(this.value||'0',10)">
+        <div class="fieldhint">新生建檔時自動套用</div></div>
       <div class="actions">
         <button class="btn ghost" onclick="closePlan()">取消</button>
         <button class="btn primary" onclick="savePlan()">${m.isNew?'新增':'儲存'}</button>

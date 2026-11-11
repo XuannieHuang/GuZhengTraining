@@ -13,6 +13,10 @@
 import os, sys, time, subprocess, shutil, urllib.request, urllib.error
 from PIL import Image
 
+# Windows 的 cp950 印不出 ✅，輸出被導向檔案或管線時會整支卡掉
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs', '手冊', '圖')
 PORT = 5501
