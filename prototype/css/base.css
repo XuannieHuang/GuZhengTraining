@@ -103,7 +103,9 @@ body.modal-open #app main{overflow:hidden;}
 /* 彈窗標題＝這一筆的姓名，可以直接改；姓名因此只出現一次（不再有獨立的姓名欄），
    而且桌機切到其他分頁時還看得到在處理誰。 */
 .sheet-ttl{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1 1 auto;}
-.sheet-ttl .t{font-size:17px; font-weight:900; line-height:1.25;}
+/* 標題的字級跟可編輯的標題（.ttl-inp）一致 ——
+   只有「改得改不得」的差別（虛線底線），字體不該有兩種。 */
+.sheet-ttl .t{font-size:19px; font-weight:900; line-height:1.25;}
 .sheet-ttl .s{font-size:12.5px; font-weight:500; color:var(--muted);}
 .sheet-ttl .ttl-inp{border:0; background:none; padding:0; margin:0; font:inherit;
   font-size:19px; font-weight:900; color:var(--ink); width:100%;

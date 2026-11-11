@@ -28,7 +28,7 @@ function renderPayEvent(){
       <div class="field f-att"><label>期數</label><div class="chips">
         ${[1,2,3].map(n=>`<div class="chipbtn ${m.periods===n?'sel':''}" onclick="peField('periods',${n})">${n} 期</div>`).join('')}
       </div></div>
-      <div class="field f-amt"><label>金額／期</label>
+      <div class="field f-amt"><label>單期學費</label>
         <input class="inp" type="number" inputmode="numeric" value="${m.amount}" oninput="ui.pemodal.amount=parseInt(this.value||'0',10);peTotal()">
         <div class="fieldhint">退費可填負數</div></div>
       <div class="field f-date"><label>繳費日</label>

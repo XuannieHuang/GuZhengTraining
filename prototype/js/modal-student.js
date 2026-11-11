@@ -62,7 +62,7 @@ function renderStudentModal(){
       <div class="chips">${planOpts.map(p=>`<div class="chipbtn ${pf.plan===p?'sel':''}" onclick="pfld('plan','${p}')">${p}<span class="chip-sub"> ${planSessions(p)}堂</span></div>`).join('')}</div>
       <div class="chips">${[1,2,3].map(n=>`<div class="chipbtn ${pf.periods===n?'sel':''}" onclick="pfld('periods',${n})">${n} 期</div>`).join('')}</div>
       <div class="payrow">
-        <input class="inp" type="number" inputmode="numeric" value="${pf.amt}" oninput="ui.smodal.payForm.amt=parseInt(this.value||'0',10)" placeholder="金額／期">
+        <input class="inp" type="number" inputmode="numeric" value="${pf.amt}" oninput="ui.smodal.payForm.amt=parseInt(this.value||'0',10)" placeholder="單期學費">
         <input class="inp" type="date" value="${pf.date}" onchange="ui.smodal.payForm.date=this.value">
       </div>
       <div class="summary"><span>合計（${pf.periods} 期）</span><b>$${total.toLocaleString()}</b></div>`;

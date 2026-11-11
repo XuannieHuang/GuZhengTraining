@@ -221,6 +221,11 @@
   #side .sheet .field:not(.paybox) input[type="date"]   { width: auto; max-width: 180px; justify-self: start; }
   #side .sheet .field:not(.paybox) input[type="number"] { max-width: 120px; }
 
+  /* 標籤在左之後，控制項從 108px（96＋12）開始。
+     屬於表單的區塊（記繳費、合計）要跟控制項切齊，
+     不然它們從最左邊開始，上下兩塊就對不上。
+     （取消／儲存那一排是面板層級的動作，維持整條寬） */
+  #side .sheet > .summary { margin-left: 108px; }
   #side .sheet .paybox { display: block; padding: 10px 12px; margin-left: 96px; }
   #side .sheet .paybox > * { margin: 0 0 8px !important; }
   #side .sheet .paybox .summary { padding: 8px 10px; font-size: 13px; }
