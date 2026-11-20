@@ -42,10 +42,13 @@ function setPlan(p){ const s=DB.students.find(s=>s.id===ui.modal.id); ui.modal.p
 function setPeriods(n){ ui.modal.periods=n; renderModal(); }
 function closePay(){ const h=document.getElementById('ov'); if(h) h.remove(); ui.modal=null; document.body.classList.remove('modal-open'); }
 function planSessions(plan){ return plan==='季繳'?12:(plan==='單堂'?1:4); }
-function confirmPay(){
+async function confirmPay(){
   const s=DB.students.find(s=>s.id===ui.modal.id);
   const m=ui.modal, total=m.amt*m.periods;
-  const sess = planSessions(m.plan) * m.periods;          // 本次繳費對應堂數
+  // 要扣的是「剛用完的那一期」= 上一筆繳費買的方案（換方案時才會跟 m.plan 不同）。
+  // 一定要在寫入這筆繳費「之前」讀，不然最後一筆就變成自己。
+  const oldPlan = await lastPaidPlan(s.id, s.plan);
+  const sess = payDeduct(oldPlan, m.plan, m.periods);
   s.pay=m.date; s.amt=m.amt; s.plan=m.plan; s.notified=false;
   s.attended = (s.attended||0) - sess;                    // 自動扣堂（滾到下一期）
   // 1) 繳費紀錄 log

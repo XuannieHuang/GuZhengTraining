@@ -39,6 +39,33 @@ function rentalTeacher(r){
   return s ? teacherName(s.t) : '';
 }
 function planClass(p){ return p==='季繳'?'j':'m'; }
+
+/* 記繳費要扣的是「剛用完的那一期」，不是新買的那一期。
+
+   已上堂數的意義是「這一期已經上了幾堂」，剩餘堂數＝方案堂數 − 已上堂數。
+   所以繳費開新一期時，要把上一期的額度結清、把超出的部分帶到新一期：
+
+       已上堂數 -= planSessions(舊方案) + planSessions(新方案) × (期數 − 1)
+
+   第一期用來結清上一期，多買的期數才是純粹的存堂。
+   方案沒變時這個結果跟「planSessions(新方案) × 期數」完全一樣，
+   只有換方案（月↔季↔單堂）才會不同 —— 原本會把月繳用完的 4 堂
+   當成季繳的 4 堂去扣 12，變成 −8（等於憑空多出 8 堂）。 */
+function payDeduct(oldPlan, newPlan, periods){
+  return planSessions(oldPlan) + planSessions(newPlan) * ((periods || 1) - 1);
+}
+
+/* 上一期是用哪個方案買的 —— 以最後一筆「正數」繳費為準（退費不算）。
+   Excel 匯入、沒有逐筆繳費紀錄的舊資料，退回用學生目前的方案。 */
+async function lastPaidPlan(studentId, fallback){
+  try{
+    const { data, error } = await sb.from('payments')
+      .select('billing,pay_date').eq('student_id', studentId)
+      .gt('amount', 0).order('pay_date', { ascending:false }).limit(1);
+    if(error || !data || !data.length) return fallback;
+    return data[0].billing || fallback;
+  }catch(e){ return fallback; }
+}
 function today(){ const d=new Date(); return d.toISOString().slice(0,10); }
 function fmtDate(d){ if(!d) return '—'; const x=new Date(d); return (x.getMonth()+1)+'/'+x.getDate(); }
 function fmtDate2(d){ if(!d) return '—'; const x=new Date(d); return x.getFullYear()+'/'+(x.getMonth()+1)+'/'+x.getDate(); }

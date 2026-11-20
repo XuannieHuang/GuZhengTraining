@@ -152,7 +152,12 @@ function pfld(k,v){
 }
 async function payFromStudent(){
   const m=ui.smodal, pf=m.payForm;
-  const sess=planSessions(pf.plan)*pf.periods;
+  // 同上：扣的是上一期（最後一筆正數繳費）的方案，而且要在寫入這筆之前讀。
+  // 這裡不用 m.plan 當退路，因為使用者可能先在上面把方案欄改掉了；
+  // 以存檔的值為準。
+  const saved = DB.students.find(x=>x.id===m.id);
+  const oldPlan = await lastPaidPlan(m.id, (saved&&saved.plan) || m.plan);
+  const sess = payDeduct(oldPlan, pf.plan, pf.periods);
   const { error }=await sb.from('payments').insert({ student_id:m.id, billing:pf.plan, periods:pf.periods, amount:pf.amt, pay_date:pf.date });
   if(error){ toast('繳費失敗：'+error.message); return; }
   m.attended=(m.attended||0)-sess; m.plan=pf.plan; m.pay=pf.date; m.amt=pf.amt;   // 扣堂 + 更新最後繳費
