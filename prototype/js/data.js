@@ -19,8 +19,14 @@ function mapStudent(r){ return { id:r.id, t:r.teacher_id, name:r.name, inst:r.in
   deleted:!!r.deleted_at, stopped:r.stopped_at||null }; }
 function studentName(id){ const s=DB.students.find(x=>x.id===id); return s?s.name:''; }
 function mapBook(r){ return { id:r.id, name:r.name, price:r.price, qty:r.qty||0,
-  photo:r.photo_path||'', note:r.note||'',
+  photo:r.photo_path||'', note:r.note||'', sort:r.sort,
   active:r.active!==false, deleted:!!r.deleted_at }; }
+/* 課本清單一律照 books.sort（＝盤點表 Excel 的列順序），盤點時手上的紙本
+   才對得起來。sort 是空的（App 裡新建、還沒排過的）排在最後面。 */
+function byBookSort(a, b){
+  const x = a.sort == null ? Infinity : a.sort, y = b.sort == null ? Infinity : b.sort;
+  return x - y || a.name.localeCompare(b.name);
+}
 /* 盤點要走過的三個地方。書不綁定位置 —— 同一本常常分散在兩三個地方，
    綁上去那個標籤就會說謊。分區純粹是盤點時「別漏點」的動線，最後只看總數。 */
 const BOOK_AREAS = ['書架', '右教室', '左教室'];
@@ -94,7 +100,7 @@ async function loadAll(){
     sb.from('students').select('*').order('name'),
     sb.from('plans').select('*'),
     sb.from('rentals').select('*'),
-    sb.from('books').select('*').order('name')
+    sb.from('books').select('*').order('sort', { nullsFirst:false }).order('name')
   ]);
   if(tRes.error) throw tRes.error;
   DB.teachers = (tRes.data||[]).map(mapTeacher);

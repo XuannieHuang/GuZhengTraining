@@ -314,7 +314,7 @@ function deskSettingAllowed(){
     ${ALLOWED.length?'':'<div class="meta set-note">＊白名單尚未啟用（請先在 Supabase 執行 C1 SQL）。</div>'}`;
 }
 function deskSettingBooks(){
-  const list=DB.books.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  const list=DB.books.slice().sort(byBookSort);
   const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
       <span class="row" style="gap:8px">
         ${list.length?`<button class="set-addbtn" onclick="openStocktake()">📋 盤點</button>`:''}

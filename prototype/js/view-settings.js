@@ -63,7 +63,7 @@ function toggleTeacher(id){
    書不綁定存放位置 —— 同一本常常分散在兩三個地方，綁上去那個標籤就會說謊。
    位置只在盤點時當動線用。桌機版在 js/desktop.js，改成表格。 */
 function booksSection(){
-  const list=DB.books.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  const list=DB.books.slice().sort(byBookSort);
   const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
     <div class="row" style="gap:6px">
       ${list.length?`<button class="set-addbtn" onclick="openStocktake()">📋 盤點</button>`:''}

@@ -65,7 +65,7 @@ function stockRowHtml(b){
 
 function stocktakeBody(){
   if(!DB.books.length) return `<div class="empty">尚未建立課本</div>`;
-  const list = DB.books.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  const list = DB.books.slice().sort(byBookSort);
   return `<div class="chk-card">${list.map(stockRowHtml).join('')}</div>`;
 }
 

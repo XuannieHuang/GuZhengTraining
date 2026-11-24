@@ -167,6 +167,8 @@ async function saveBook(){
     photo_path:m.photo||null, note:(m.note||'').trim()||null };
   if(m.isNew){
     rec.qty=m.qty||0;
+    // 排在現有清單最後面（順序本身是照盤點表匯入的，見 tools/import_books.py）
+    rec.sort=DB.books.reduce((n,b)=>Math.max(n, b.sort||0), 0)+1;
     const { data, error }=await sb.from('books').insert(rec).select().single();
     if(error){ toast('新增失敗：'+error.message); return; }
     DB.books.push(mapBook(data));

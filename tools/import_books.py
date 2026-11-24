@@ -3,13 +3,16 @@
 
     py tools/import_books.py "C:\\path\\書籍盤點表.xlsx"
 
-只讀「品項」那一欄的書名，其他欄位（售價、存放區域、數量）一律留白 ——
+只讀「品項」那一欄的書名，其他欄位（售價、數量）一律留白 ——
 盤點表裡本來就沒有這些資料，不猜。數量留 0，之後用 App 的盤點一次點進去。
 
+**順序**：App 裡的課本清單要跟 Excel 一樣，所以把檔案裡的列順序寫進 books.sort。
+重複執行會重新同步一次順序 —— 以後改了 Excel 的排法，再跑一次就好。
+
 性質：
-  - **冪等**：已經存在的書名會跳過，重複執行不會變成兩筆
-  - 只新增，不更新也不刪除任何既有資料
-  - 要還原：DELETE FROM books WHERE qty=0 AND price IS NULL AND location IS NULL;
+  - **冪等**：已經存在的書名不會重複新增（但 sort 會更新成檔案裡的順序）
+  - 不刪除任何既有資料，也不動售價、數量、封面、備註
+  - 要還原：DELETE FROM books WHERE qty=0 AND price IS NULL;
 
 ⚠️ 這支會寫資料庫。日常查詢一律走 tools/db_select.py（唯讀）。
 ⚠️ repo 是公開的：書名只從指令列傳進來的檔案讀，不寫進這支程式裡。
@@ -61,28 +64,33 @@ def main():
     dup = [n for n in names if n in exist]
 
     if dup:
-        print(f'已經在系統裡、這次跳過（{len(dup)} 本）：')
-        for n in dup:
-            print('  ·', n)
+        print(f'已經在系統裡的 {len(dup)} 本：只更新順序，其他欄位不動')
+    if todo:
         print()
-    if not todo:
-        print('沒有需要新增的書。')
-        return
-
-    print(f'要新增 {len(todo)} 本：')
-    for i, n in enumerate(todo, 1):
-        print(f'  {i:>3}. {n}')
+        print(f'要新增 {len(todo)} 本：')
+        for n in todo:
+            print('  ·', n)
 
     with connect() as conn:                      # 這裡「不」設 read_only
         with conn.cursor() as cur:
+            if todo:
+                cur.executemany(
+                    'INSERT INTO books (name, qty) VALUES (%s, 0)',
+                    [(n,) for n in todo])
+            # 順序＝檔案裡的列序（1 起算），讓 App 的清單跟 Excel 一樣
             cur.executemany(
-                'INSERT INTO books (name, qty) VALUES (%s, 0)',
-                [(n,) for n in todo])
+                'UPDATE books SET sort = %s WHERE name = %s AND deleted_at IS NULL',
+                [(i, n) for i, n in enumerate(names, 1)])
         conn.commit()
 
     _c, r = query('SELECT count(*) FROM books WHERE deleted_at IS NULL')
-    print(f'\n✅ 已新增 {len(todo)} 本，books 目前共 {r[0][0]} 本')
-    print('   售價、存放區域、封面都留白；數量 0 —— 用 App 的「📋 盤點」一次點進去。')
+    print()
+    print(f'✅ 新增 {len(todo)} 本、順序同步 {len(names)} 本，books 目前共 {r[0][0]} 本')
+    _c, r = query("""SELECT sort, name FROM books WHERE deleted_at IS NULL
+                     ORDER BY sort NULLS LAST, name LIMIT 4""")
+    print('   排序後的前幾筆：')
+    for i, n in r:
+        print(f'     {i}. {n}')
 
 
 if __name__ == '__main__':
