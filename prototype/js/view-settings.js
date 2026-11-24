@@ -59,28 +59,21 @@ function toggleTeacher(id){
   render(); toast(`${t.name} 已${t.active?'啟用':'停用'}`);
 }
 
-/* 課本區段（手機版）：依存放區域分組的卡片列。
-   桌機版在 js/desktop.js，改成表格。 */
+/* 課本區段（手機版）：卡片列，依書名排。
+   書不綁定存放位置 —— 同一本常常分散在兩三個地方，綁上去那個標籤就會說謊。
+   位置只在盤點時當動線用。桌機版在 js/desktop.js，改成表格。 */
 function booksSection(){
-  const list=DB.books.slice().sort((a,b)=>
-    (a.loc||'￿').localeCompare(b.loc||'￿') || a.name.localeCompare(b.name));
+  const list=DB.books.slice().sort((a,b)=>a.name.localeCompare(b.name));
   const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
     <div class="row" style="gap:6px">
       ${list.length?`<button class="set-addbtn" onclick="openStocktake()">📋 盤點</button>`:''}
       <button class="set-addbtn" onclick="openBook(null)">＋ 新增課本</button>
     </div></div>`;
   if(!list.length) return head+`<div class="empty sm">尚未建立課本</div>`;
-  let html=head, cur=null;
-  list.forEach(b=>{
-    const loc=b.loc||'未分區';
-    if(loc!==cur){ cur=loc;
-      html+=`<div class="check-group">${loc} · ${list.filter(x=>(x.loc||'未分區')===loc).length} 本</div>`; }
-    html+=`<div class="card setrow" onclick="openBook('${b.id}')"><div class="row">
+  return head + list.map(b=>`<div class="card setrow" onclick="openBook('${b.id}')"><div class="row">
       ${bookThumb(b)}
       <div class="grow"><b>${b.name}</b>${b.note?`<div class="meta">${b.note}</div>`:''}</div>
       <div class="tac"><div class="bqty">${b.qty}</div>
         <div class="meta">${b.price!=null?'$'+b.price.toLocaleString():'—'}</div></div>
-    </div></div>`;
-  });
-  return html;
+    </div></div>`).join('');
 }

@@ -61,7 +61,7 @@
   ];
 
   const BOOKS = [
-    { id: 'b1', name: '範例教本 一', price: 350, qty: 12, loc: '教室一 · 書櫃 A', photo: '', note: '', active: true, deleted: false },
+    { id: 'b1', name: '範例教本 一', price: 350, qty: 12, photo: '', note: '', active: true, deleted: false },
     { id: 'b2', name: '範例教本 二', price: 350, qty: 8,  loc: '教室一 · 書櫃 A', photo: '', note: '缺貨中', active: true, deleted: false },
     { id: 'b3', name: '範例教本 三', price: 380, qty: 6,  loc: '教室一 · 書櫃 A', photo: '', note: '', active: true, deleted: false },
     { id: 'b4', name: '範例入門',   price: 420, qty: 5,  loc: '倉庫',           photo: '', note: '', active: true, deleted: false },

@@ -9,7 +9,7 @@
 function openBook(id){
   const b = id ? DB.books.find(x=>x.id===id) : null;
   ui.bmodal = b ? Object.assign({}, b, { isNew:false, moves:null })
-                : { isNew:true, id:null, name:'', price:null, qty:0, loc:'', photo:'', note:'', moves:[] };
+                : { isNew:true, id:null, name:'', price:null, qty:0, photo:'', note:'', moves:[] };
   document.body.classList.add('modal-open');
   renderBookModal();
   if(id){
@@ -21,24 +21,6 @@ function openBook(id){
       }
     });
   }
-}
-
-/* 存放區域：自由打字，但把已經用過的區域列出來讓你點 ——
-   不另開區域主檔表，又不會打成「櫃子A」「櫃A」「A櫃」三種。
-   （跟租借的承租人建議清單同一個做法） */
-function bookLocs(){
-  return [...new Set(DB.books.map(b=>b.loc).filter(Boolean))].sort();
-}
-function locSug(){
-  const m=ui.bmodal, q=(m.loc||'').trim();
-  const all = bookLocs();
-  // 打字到一半 → 只列相符的；已經填好一個既有區域 → 列出其他區域讓你改。
-  // 不分這兩種情況的話，填好之後建議清單會整個變空。
-  const exact = all.includes(q);
-  const hit = all.filter(l=>l!==q && (exact || !q || l.includes(q))).slice(0,6);
-  if(!hit.length) return '';
-  return `<div class="rsug">${hit.map(l=>
-    `<button type="button" class="rsug-i" onclick="bfield('loc','${l.replace(/'/g,"\\'")}')">${l}</button>`).join('')}</div>`;
 }
 
 function renderBookModal(){
@@ -107,9 +89,6 @@ function renderBookModal(){
       <div class="field f-amt"><label>售價</label>
         <input class="inp" type="number" inputmode="numeric" value="${m.price==null?'':m.price}"
                oninput="ui.bmodal.price=this.value===''?null:parseInt(this.value,10)"></div>
-      <div class="field f-loc"><label>存放區域</label>
-        <input class="inp" value="${esc(m.loc)}" oninput="ui.bmodal.loc=this.value" placeholder="例如 教室一 · 書櫃 A">
-        <div id="blocsug">${locSug()}</div></div>
       <div class="field f-photo"><label>封面</label>
         <div class="bphoto">${bookThumb(m,'big')}
           <label class="bphoto-btn">${m.photo?'換一張':'拍照或從相簿選'}
@@ -185,8 +164,7 @@ async function saveBook(){
   const m=ui.bmodal;
   if(!m.name || !m.name.trim()){ toast('請輸入課本名稱'); return; }
   const rec={ name:m.name.trim(), price:m.price==null?null:m.price,
-    location:(m.loc||'').trim()||null, photo_path:m.photo||null,
-    note:(m.note||'').trim()||null };
+    photo_path:m.photo||null, note:(m.note||'').trim()||null };
   if(m.isNew){
     rec.qty=m.qty||0;
     const { data, error }=await sb.from('books').insert(rec).select().single();
@@ -202,7 +180,7 @@ async function saveBook(){
     const { error }=await sb.from('books').update(rec).eq('id',m.id);   // 不更新 qty
     if(error){ toast('儲存失敗：'+error.message); return; }
     const b=DB.books.find(x=>x.id===m.id);
-    if(b) Object.assign(b,{ name:rec.name, price:rec.price, loc:rec.location||'',
+    if(b) Object.assign(b,{ name:rec.name, price:rec.price,
       photo:rec.photo_path||'', note:rec.note||'' });
   }
   const created=m.isNew;

@@ -49,3 +49,11 @@
 .st-row .num{flex:0 0 auto;}
 .st-diff{flex:0 0 42px; text-align:right; font-size:15px; font-weight:800;
   font-variant-numeric:tabular-nums;}
+/* 盤點：區域分頁下的「這一區點完了」勾選 */
+.st-doneflag{display:flex; align-items:center; gap:8px; margin:0 4px 10px;
+  font-size:13px; font-weight:600; color:var(--primary-d); cursor:pointer;}
+.st-doneflag input{width:18px; height:18px; accent-color:var(--primary); cursor:pointer;}
+.st-sum{flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; gap:1px;
+  text-align:right; font-size:12px; color:var(--muted); white-space:nowrap;}
+.st-sum .st-t{color:var(--muted);}
+.st-sum .st-t b{font-size:17px; color:var(--ink); font-variant-numeric:tabular-nums; margin-left:3px;}

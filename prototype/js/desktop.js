@@ -314,26 +314,19 @@ function deskSettingAllowed(){
     ${ALLOWED.length?'':'<div class="meta set-note">＊白名單尚未啟用（請先在 Supabase 執行 C1 SQL）。</div>'}`;
 }
 function deskSettingBooks(){
-  const list=DB.books.slice().sort((a,b)=>
-    (a.loc||'￿').localeCompare(b.loc||'￿') || a.name.localeCompare(b.name));
+  const list=DB.books.slice().sort((a,b)=>a.name.localeCompare(b.name));
   const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
       <span class="row" style="gap:8px">
         ${list.length?`<button class="set-addbtn" onclick="openStocktake()">📋 盤點</button>`:''}
         <button class="set-addbtn" onclick="openBook(null)">＋ 新增課本</button>
       </span></div>`;
   if(!list.length) return head+`<div class="empty sm">尚未建立課本</div>`;
-  let rows='', cur=null;
-  list.forEach(b=>{
-    const loc=b.loc||'未分區';
-    if(loc!==cur){ cur=loc;
-      rows+=`<tr class="ghead"><td colspan="5">${loc} · ${list.filter(x=>(x.loc||'未分區')===loc).length} 本</td></tr>`; }
-    rows+=`<tr class="clickable" onclick="openBook('${b.id}')">
+  const rows=list.map(b=>`<tr class="clickable" onclick="openBook('${b.id}')">
       <td class="c-thumb">${bookThumb(b)}</td>
       <td class="sname">${b.name}</td>
       <td class="c">${b.price!=null?'$'+b.price.toLocaleString():'—'}</td>
       <td class="c bqty">${b.qty}</td>
-      <td class="note">${b.note||'—'}</td></tr>`;
-  });
+      <td class="note">${b.note||'—'}</td></tr>`).join('');
   return head+`<table class="dtable set-tbl book-tbl"><thead><tr>
       <th></th><th>課本名稱</th><th class="c">售價</th><th class="c">數量</th><th class="col-note">備註</th>
     </tr></thead><tbody>${rows}</tbody></table>`;

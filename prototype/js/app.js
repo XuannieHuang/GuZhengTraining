@@ -62,7 +62,8 @@ window.setPlan=setPlan; window.setPeriods=setPeriods; window.logout=logout; wind
 window.googleLogin=googleLogin; window.addAllowed=addAllowed; window.removeAllowedEmail=removeAllowedEmail;
 window.setAmt=setAmt;
 window.openStocktake=openStocktake; window.finishStocktake=finishStocktake;
-window.setStockCount=setStockCount; window.bindStock=bindStock;
+window.setStockAt=setStockAt; window.setStockArea=setStockArea;
+window.toggleAreaDone=toggleAreaDone; window.bindStock=bindStock;
 window.openBook=openBook; window.bfield=bfield; window.bPane=bPane; window.closeBook=closeBook;
 window.saveBook=saveBook; window.deleteBook=deleteBook; window.stockIn=stockIn;
 window.toggleStockBox=toggleStockBox; window.bStockTotal=bStockTotal; window.pickBookPhoto=pickBookPhoto;

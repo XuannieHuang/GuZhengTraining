@@ -19,8 +19,11 @@ function mapStudent(r){ return { id:r.id, t:r.teacher_id, name:r.name, inst:r.in
   deleted:!!r.deleted_at, stopped:r.stopped_at||null }; }
 function studentName(id){ const s=DB.students.find(x=>x.id===id); return s?s.name:''; }
 function mapBook(r){ return { id:r.id, name:r.name, price:r.price, qty:r.qty||0,
-  loc:r.location||'', photo:r.photo_path||'', note:r.note||'',
+  photo:r.photo_path||'', note:r.note||'',
   active:r.active!==false, deleted:!!r.deleted_at }; }
+/* 盤點要走過的三個地方。書不綁定位置 —— 同一本常常分散在兩三個地方，
+   綁上去那個標籤就會說謊。分區純粹是盤點時「別漏點」的動線，最後只看總數。 */
+const BOOK_AREAS = ['書架', '右教室', '左教室'];
 function mapRental(r){ return { id:r.id, sid:r.student_id, name:r.renter_name, inst:r.instrument, billing:r.billing,
   pay:r.pay_date, start:r.start_date, due:r.due_date, status:r.status, returned:r.returned_date||null, note:r.note||'' }; }
 
