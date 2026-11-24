@@ -76,6 +76,12 @@ SHOTS = [
     ('示意-刪除b-文字連結', 'p=f2&v=check&m=student',           1440, 700),
     ('示意-刪除c-按鈕加小字','p=f3&v=check&m=student',          1440, 700),
 
+    ('課本-1-清單',         'v=setting',                        1440, 980),
+    ('課本-2-編輯',         'v=setting&m=book',                 1440, 820),
+    ('課本-3-進貨',         'v=setting&m=book&act=stockpane',   1440, 820),
+    ('課本-4-紀錄',         'v=setting&m=book&act=logpane2',    1440, 820),
+    ('課本-5-手機',         'v=setting&m=book',                  500, 1080),
+
     ('11-筆電-1280',        'v=check&m=student',       1280,  820),
     ('12-縮放125-1183',      'v=check&m=student',       1183,  820),
     ('13-窄桌機-1024',      'v=check&m=student',       1024,  800),

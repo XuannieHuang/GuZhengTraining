@@ -293,3 +293,15 @@
      不要把整個版面撐破。 */
   #app:has(#side .overlay) > main { min-width: 0; overflow-x: auto; }
 }
+
+@media (min-width: 1024px) {
+  /* 課本表：封面那一欄只佔縮圖寬度 */
+  .book-tbl td.c-thumb, .book-tbl th:first-child { width: 1%; padding-right: 0; }
+  .book-tbl .bthumb { width: 32px; height: 42px; }
+  .book-tbl .bqty { font-size: 16px; }
+  /* 封面欄的動作排成一直行，面板窄放得下 */
+  #side .sheet .bphoto { flex-wrap: wrap; }
+  #side .sheet .f-photo .bthumb.big { width: 84px; height: 112px; }
+  /* 數量是唯讀顯示，跟輸入框對齊 */
+  #side .sheet .f-att .bqty { padding-top: 6px; }
+}

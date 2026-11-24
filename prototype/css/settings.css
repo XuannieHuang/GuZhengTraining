@@ -17,3 +17,18 @@
 .tbtn.on{border-color:var(--green); color:#fff; background:var(--green);}
 .avatar{width:34px; height:34px; border-radius:50%; background:var(--primary); color:#fff;
   display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 auto;}
+
+/* ── 課本 ── */
+.bthumb{flex:0 0 auto; width:38px; height:50px; border-radius:6px; object-fit:cover;
+  background:var(--fill); border:1px solid var(--line);}
+.bthumb.ph{display:grid; place-items:center; font-size:19px; color:#b9bfc7;}
+.bthumb.big{width:96px; height:128px; border-radius:10px; font-size:38px;}
+.bqty{font-size:19px; font-weight:800; font-variant-numeric:tabular-nums;}
+/* 封面欄：圖在左、動作在右 */
+.bphoto{display:flex; align-items:flex-start; gap:12px;}
+.bphoto-btn{display:inline-block; padding:8px 14px; border-radius:10px;
+  border:1px solid var(--primary); background:var(--card); color:var(--primary-d);
+  font-size:13px; font-weight:700; cursor:pointer; margin:0;}
+.bphoto-btn input{display:none;}
+.bphoto-del{border:0; background:none; padding:8px 4px; font:inherit; font-size:12.5px;
+  color:var(--red); text-decoration:underline; text-underline-offset:3px; cursor:pointer;}

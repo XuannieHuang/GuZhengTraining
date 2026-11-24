@@ -1,7 +1,7 @@
 /* data.js — 狀態、欄位對應、共用邏輯、雲端載入/寫回、toast */
 
 /* ---------- 狀態 ---------- */
-let DB = { teachers:[], students:[], rentals:[] };
+let DB = { teachers:[], students:[], rentals:[], books:[] };
 let PLANS = [];
 let PLAN_PRICE = {'季繳':10000,'月繳':3500};
 let ME = '';
@@ -18,6 +18,9 @@ function mapStudent(r){ return { id:r.id, t:r.teacher_id, name:r.name, inst:r.in
   contact:r.contact||'', partner:r.partner_id||null, note:r.note||'', checked:!!r.checked, notified:!!r.notified,
   deleted:!!r.deleted_at, stopped:r.stopped_at||null }; }
 function studentName(id){ const s=DB.students.find(x=>x.id===id); return s?s.name:''; }
+function mapBook(r){ return { id:r.id, name:r.name, price:r.price, qty:r.qty||0,
+  loc:r.location||'', photo:r.photo_path||'', note:r.note||'',
+  active:r.active!==false, deleted:!!r.deleted_at }; }
 function mapRental(r){ return { id:r.id, sid:r.student_id, name:r.renter_name, inst:r.instrument, billing:r.billing,
   pay:r.pay_date, start:r.start_date, due:r.due_date, status:r.status, returned:r.returned_date||null, note:r.note||'' }; }
 
@@ -83,16 +86,19 @@ function rentalState(r){
 
 /* ---------- 從雲端載入 ---------- */
 async function loadAll(){
-  const [tRes, sRes, pRes, rRes] = await Promise.all([
+  const [tRes, sRes, pRes, rRes, bRes] = await Promise.all([
     sb.from('teachers').select('*').order('sort'),
     sb.from('students').select('*').order('name'),
     sb.from('plans').select('*'),
-    sb.from('rentals').select('*')
+    sb.from('rentals').select('*'),
+    sb.from('books').select('*').order('name')
   ]);
   if(tRes.error) throw tRes.error;
   DB.teachers = (tRes.data||[]).map(mapTeacher);
   DB.students = (sRes.data||[]).map(mapStudent).filter(s=>!s.deleted);   // 註記刪除的不載入
   DB.rentals  = (rRes.data||[]).map(mapRental);
+  // 課本表是後來才加的，舊環境讀不到就當作沒有，不要讓整個 App 起不來
+  DB.books    = bRes.error ? [] : (bRes.data||[]).map(mapBook).filter(b=>!b.deleted);
   PLANS = pRes.data||[];
   const g=(b)=>{ const p=PLANS.find(p=>p.instrument==='古箏'&&p.class_type==='個人'&&p.billing===b); return p?p.price:null; };
   PLAN_PRICE['季繳']=g('季繳')||10000; PLAN_PRICE['月繳']=g('月繳')||3500;

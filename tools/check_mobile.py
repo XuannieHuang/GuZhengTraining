@@ -8,6 +8,10 @@
 
 比對完會把截圖還原成 git 版本，不留下雜訊 diff。
 
+前提：docs/手冊/mock.js 的「今天」是釘死的。
+用真的 new Date() 的話，每過一天相對日期全部會移動，
+這支就會把「日期漂移」誤報成「版面被改到」。
+
     py tools/check_mobile.py
 """
 import os, sys, subprocess, tempfile, shutil

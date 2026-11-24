@@ -38,8 +38,8 @@ function mountSide(app){
    那是真正的巢狀（改完要退回原本那位學生），CSS 只顯示最後一層。
    其他情況（例如在事件修正頁先點一筆繳費、再點一筆租箏）是「換一筆看」，
    不清掉的話關掉上面那層會冒出前一筆，看起來就像疊在一起。 */
-const HOST_IDS = ['ov','sov','rov','tov','pov','peov'];
-const HOST_UI  = { ov:'modal', sov:'smodal', rov:'rmodal', tov:'tmodal', pov:'pmodal', peov:'pemodal' };
+const HOST_IDS = ['ov','sov','rov','tov','pov','peov','bov'];
+const HOST_UI  = { ov:'modal', sov:'smodal', rov:'rmodal', tov:'tmodal', pov:'pmodal', peov:'pemodal', bov:'bmodal' };
 function dropHost(id){
   const h=document.getElementById(id); if(h) h.remove();
   if(typeof ui!=='undefined') ui[HOST_UI[id]]=null;
@@ -72,6 +72,7 @@ function closeSidePanels(){
   if(ui.rmodal)  closeRental();
   if(ui.tmodal)  closeTeacher();
   if(ui.pmodal)  closePlan();
+  if(ui.bmodal)  closeBook();
 }
 
 /* ── 核對頁 ───────────────────────────────────────────────
@@ -312,8 +313,30 @@ function deskSettingAllowed(){
     }).join('')}</tbody></table>
     ${ALLOWED.length?'':'<div class="meta set-note">＊白名單尚未啟用（請先在 Supabase 執行 C1 SQL）。</div>'}`;
 }
+function deskSettingBooks(){
+  const list=DB.books.slice().sort((a,b)=>
+    (a.loc||'￿').localeCompare(b.loc||'￿') || a.name.localeCompare(b.name));
+  const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
+      <button class="set-addbtn" onclick="openBook(null)">＋ 新增課本</button></div>`;
+  if(!list.length) return head+`<div class="empty sm">尚未建立課本</div>`;
+  let rows='', cur=null;
+  list.forEach(b=>{
+    const loc=b.loc||'未分區';
+    if(loc!==cur){ cur=loc;
+      rows+=`<tr class="ghead"><td colspan="5">${loc} · ${list.filter(x=>(x.loc||'未分區')===loc).length} 本</td></tr>`; }
+    rows+=`<tr class="clickable" onclick="openBook('${b.id}')">
+      <td class="c-thumb">${bookThumb(b)}</td>
+      <td class="sname">${b.name}</td>
+      <td class="c">${b.price!=null?'$'+b.price.toLocaleString():'—'}</td>
+      <td class="c bqty">${b.qty}</td>
+      <td class="note">${b.note||'—'}</td></tr>`;
+  });
+  return head+`<table class="dtable set-tbl book-tbl"><thead><tr>
+      <th></th><th>課本名稱</th><th class="c">售價</th><th class="c">數量</th><th class="col-note">備註</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
 function deskSettingView(){
-  return `<div class="setpane">${deskSettingPlans()}${deskSettingTeachers()}${deskSettingAllowed()}
+  return `<div class="setpane">${deskSettingPlans()}${deskSettingBooks()}${deskSettingTeachers()}${deskSettingAllowed()}
     <a class="resetlink" onclick="logout()">登出</a>
     <div class="empty sm">雲端版 · Supabase</div></div>`;
 }

@@ -10,7 +10,11 @@
  */
 (function () {
   const q = new URLSearchParams(location.search);
-  const T = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  /* 假資料的「今天」釘死在這一天。
+     用真的 new Date() 的話，每過一天所有相對日期都會跟著移動 ——
+     手冊截圖隔幾天重拍就全部不一樣，也沒辦法拿前後兩次比對來確認版面有沒有被改到。 */
+  const NOW = new Date('2026-11-24T00:00:00');
+  const T = (n) => { const d = new Date(NOW); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 
   const TEACHERS = [
     { id: 't1', name: '王美華', role: ' 主任', inst: ['古箏'], sort: 1, active: true },
@@ -48,6 +52,14 @@
     { id: 'r3', sid: 's8', name: '鄭又寧', inst: '古箏', billing: '季繳', pay: T(-20), start: T(-20), due: T(70), status: '租賃中', returned: null, note: '' },
     { id: 'r4', sid: null, name: '何靜美', inst: '古箏', billing: '季繳', pay: T(-40), start: T(-40), due: T(50), status: '租賃中', returned: null, note: '只租箏沒上課' },
     { id: 'r5', sid: 's11', name: '楊雅筑', inst: '琵琶', billing: '月繳', pay: T(-60), start: T(-60), due: T(-30), status: '已還箏', returned: T(-28), note: '' },
+  ];
+
+  const BOOKS = [
+    { id: 'b1', name: '範例教本 一', price: 350, qty: 12, loc: '教室一 · 書櫃 A', photo: '', note: '', active: true, deleted: false },
+    { id: 'b2', name: '範例教本 二', price: 350, qty: 8,  loc: '教室一 · 書櫃 A', photo: '', note: '缺貨中', active: true, deleted: false },
+    { id: 'b3', name: '範例教本 三', price: 380, qty: 6,  loc: '教室一 · 書櫃 A', photo: '', note: '', active: true, deleted: false },
+    { id: 'b4', name: '範例入門',   price: 420, qty: 5,  loc: '倉庫',           photo: '', note: '', active: true, deleted: false },
+    { id: 'b5', name: '範例練習簿', price: 180, qty: 0,  loc: '',               photo: '', note: '待補貨', active: true, deleted: false },
   ];
 
   const PLAN_ROWS = [
@@ -88,6 +100,9 @@
     // 桌機分頁式面板：切到「記繳費」／「紀錄」那一頁
     paypane: () => { openStudent('s1'); if (typeof sPane === 'function') setTimeout(() => sPane('pay'), 300); },
     logpane: () => { openStudent('s1'); if (typeof sPane === 'function') setTimeout(() => sPane('log'), 300); },
+    // 課本面板：切到「記一筆進貨」／「紀錄」那一頁
+    stockpane: () => { openBook('b2'); if (typeof bPane === 'function') setTimeout(() => bPane('stock'), 300); },
+    logpane2:  () => { openBook('b2'); if (typeof bPane === 'function') setTimeout(() => bPane('log'), 300); },
   };
 
   /* 學生彈窗會去資料庫撈「繳費紀錄」與「老師異動歷史」。
@@ -102,6 +117,11 @@
       { id: 'h5', student_id: 's1', billing: '月繳', periods: 1, amount: -3500, pay_date: T(-310) },
       { id: 'h6', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-340) },
       { id: 'h7', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-370) },
+    ],
+    book_moves: [
+      { id: 'm1', book_id: 'b1', kind: '進貨', move_date: T(-40), qty_before: 0,  qty_after: 12, note: '建檔初始數量' },
+      { id: 'm2', book_id: 'b2', kind: '進貨', move_date: T(-40), qty_before: 0,  qty_after: 10, note: '建檔初始數量' },
+      { id: 'm3', book_id: 'b2', kind: '盤點', move_date: T(-10), qty_before: 10, qty_after: 8,  note: '' },
     ],
     teacher_changes: [
       { id: 'c1', student_id: 's1', from_teacher_id: 't2', to_teacher_id: 't1', changed_at: T(-200) },
@@ -134,10 +154,11 @@
     DB.teachers = TEACHERS.map(t => Object.assign({}, t));
     DB.students = STUDENTS.map(s => Object.assign({}, s));
     DB.rentals = RENTALS.map(r => Object.assign({}, r));
+    DB.books = BOOKS.map(b => Object.assign({}, b));
     PLANS = PLAN_ROWS;
     PLAN_PRICE['季繳'] = 10000; PLAN_PRICE['月繳'] = 3500;
     ME = '管'; MY_EMAIL = 'demo@example.com';
-    REPORTS = { payments: PAYMENTS, month: new Date().toISOString().slice(0, 7) };
+    REPORTS = { payments: PAYMENTS, month: NOW.toISOString().slice(0, 7) };
 
     ui.screen = q.get('v') || 'todo';
     ui.tab = q.get('t') || 't1';
@@ -151,9 +172,11 @@
     if (m === 'rental') openRental('r1');
     if (m === 'newrental') openRental(null);
     if (m === 'newplan') openPlan(null);
+    if (m === 'book') openBook('b2');
+    if (m === 'newbook') openBook(null);
 
     const act = q.get('act');
-    if (act && ACTIONS[act]) { ACTIONS[act](); if (!m && !/suggest|nonstudent|firstpay/.test(act)) render(); }
+    if (act && ACTIONS[act]) { ACTIONS[act](); if (!m && !/suggest|nonstudent|firstpay|pane/.test(act)) render(); }
 
     drawCallouts(q.get('cal'));
     watchLayout();
