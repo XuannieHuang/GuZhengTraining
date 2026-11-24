@@ -9,33 +9,45 @@
  *
  * 每一列同時顯示「合計 / 帳面 / 差異」，所以站在第二區就看得出來還差幾本。
  * 按「完成盤點」才一次寫入；中途離開完全不算。
+ *
+ * 數量欄**預設空白而不是 0** —— 空白是「還沒點」，0 是「點了，架上真的沒有」，
+ * 這兩件事必須分得開。一填進數字（含 0）那一列就沉到清單下半部，
+ * 上面永遠只剩這一區還沒碰過的，點到哪裡不用自己記（跟核對頁已核對沉底同一套）。
  */
 function openStocktake(){
   ui.screen = 'stocktake';
+  // counts 一開始是空的：沒有 key＝還沒點。別預填 0，那會讓「還沒點」看起來像「點完是 0」
   ui.stock = { date: today(), area: BOOK_AREAS[0], counts: {}, done: {} };
-  DB.books.forEach(b=>{
-    ui.stock.counts[b.id] = {};
-    BOOK_AREAS.forEach(a=>{ ui.stock.counts[b.id][a] = 0; });
-  });
+  DB.books.forEach(b=>{ ui.stock.counts[b.id] = {}; });
   loadBookPhotos().then(render);
   render();
 }
 
+/* 這一區點過了沒 —— 填過數字（含 0）就算點過，清空又變回沒點過 */
+function stockTouched(id, area){
+  const c = ui.stock && ui.stock.counts[id];
+  return !!c && c[area] != null;
+}
+function stockAnyTouched(id){ return BOOK_AREAS.some(a=>stockTouched(id, a)); }
+/* 顯示用：沒點過回傳 null（欄位留白）。要加總請用 stockNum */
 function stockAt(id, area){
   const c = ui.stock && ui.stock.counts[id];
-  return c && c[area] != null ? c[area] : 0;
+  return c && c[area] != null ? c[area] : null;
 }
+function stockNum(id, area){ const v = stockAt(id, area); return v == null ? 0 : v; }
 function stockTotal(id){
-  return BOOK_AREAS.reduce((n,a)=>n+stockAt(id,a), 0);
+  return BOOK_AREAS.reduce((n,a)=>n+stockNum(id,a), 0);
 }
 function stockDiff(b){ return stockTotal(b.id) - (b.qty||0); }
 function stockChanged(){ return DB.books.filter(b=>stockDiff(b) !== 0); }
-/* 完全沒點到、但帳面有數量的 —— 多半是漏了某一區沒走到，不是真的歸零 */
-function stockMissed(){ return DB.books.filter(b=>(b.qty||0) > 0 && stockTotal(b.id) === 0); }
+/* 一區都沒碰過、但帳面有數量的 —— 多半是整本漏掉，不是真的歸零。
+   （有碰過但點出來是 0，那是使用者的明確意思，交給下面的「數量不一樣」清單） */
+function stockMissed(){ return DB.books.filter(b=>(b.qty||0) > 0 && !stockAnyTouched(b.id)); }
 
 function setStockAt(id, area, v){
-  const n = parseInt(v || '0', 10);
-  ui.stock.counts[id][area] = isNaN(n) ? 0 : n;
+  const t = String(v == null ? '' : v).trim();
+  if(t === ''){ delete ui.stock.counts[id][area]; }   // 清空＝改回「還沒點」，列會回到上半部
+  else { const n = parseInt(t, 10); ui.stock.counts[id][area] = isNaN(n) ? 0 : n; }
   const body = document.getElementById('stbody');
   if(body){ body.innerHTML = stocktakeBody(); bindStock(); }
   const btn = document.getElementById('st-done');
@@ -50,13 +62,14 @@ function stockDoneLabel(){
 
 function stockRowHtml(b){
   const area = ui.stock.area, total = stockTotal(b.id), d = total - (b.qty||0);
-  // 還沒點到的（合計 0）不標黃 —— 那是「還沒走到」不是「有差異」，
+  // 一區都還沒碰的不標黃 —— 那是「還沒走到」不是「有差異」，
   // 一進來整頁都是黃的反而看不出重點。真的漏點由「完成盤點」時的警告擋。
-  const flag = total > 0 && d !== 0;
+  const flag = stockAnyTouched(b.id) && d !== 0;
+  const v = stockAt(b.id, area);
   return `<div class="st-row ${flag?'diff':''}" data-id="${b.id}">
     ${bookThumb(b)}
     <div class="grow"><div class="name">${b.name}</div></div>
-    <input class="num" type="number" inputmode="numeric" value="${stockAt(b.id, area)}"
+    <input class="num" type="number" inputmode="numeric" value="${v==null?'':v}" placeholder="–"
            data-act="stnum" data-id="${b.id}">
     <div class="st-sum"><span class="st-t">合計 <b>${total}</b></span><span class="st-book">帳面 ${b.qty||0}</span></div>
     <div class="st-diff ${d<0?'t-red':(d>0?'t-primary':'t-muted')}">${d===0?'—':(d>0?'+'+d:d)}</div>
@@ -65,8 +78,17 @@ function stockRowHtml(b){
 
 function stocktakeBody(){
   if(!DB.books.length) return `<div class="empty">尚未建立課本</div>`;
+  const area = ui.stock.area;
   const list = DB.books.slice().sort(byBookSort);
-  return `<div class="chk-card">${list.map(stockRowHtml).join('')}</div>`;
+  const todo = list.filter(b=>!stockTouched(b.id, area));
+  const done = list.filter(b=> stockTouched(b.id, area));
+  // 全部點完時只留一條線，不要「都點過了」底下再掛一條「已點 N 本」
+  const h = todo.length
+    ? todo.map(stockRowHtml).join('')
+      + (done.length ? `<div class="st-sub">${area}已點 ${done.length} 本</div>`
+                       + done.map(stockRowHtml).join('') : '')
+    : `<div class="st-sub all">${area}每一本都點過了 🎉</div>` + done.map(stockRowHtml).join('');
+  return `<div class="chk-card">${h}</div>`;
 }
 
 function stocktakeView(){
@@ -105,7 +127,7 @@ async function finishStocktake(){
   let msg = '';
   if(notDone.length) msg += `還沒標記點完的區域：${notDone.join('、')}\n\n`;
   if(missed.length)
-    msg += `這 ${missed.length} 本完全沒點到，完成後會變成 0：\n`
+    msg += `這 ${missed.length} 本一區都沒點到，完成後會變成 0：\n`
          + missed.slice(0,6).map(b=>`・${b.name}（帳面 ${b.qty}）`).join('\n')
          + (missed.length>6?`\n…等 ${missed.length} 本`:'') + '\n\n';
   msg += changed.length
@@ -117,7 +139,7 @@ async function finishStocktake(){
 
   const rows = DB.books.map(b=>{
     // 各區的數字只留在紀錄的備註裡當線索，不另外存成庫存
-    const parts = BOOK_AREAS.filter(a=>stockAt(b.id,a)).map(a=>`${a} ${stockAt(b.id,a)}`);
+    const parts = BOOK_AREAS.filter(a=>stockNum(b.id,a)).map(a=>`${a} ${stockNum(b.id,a)}`);
     return { book_id:b.id, kind:'盤點', move_date:ui.stock.date,
       qty_before:b.qty||0, qty_after:stockTotal(b.id), note:parts.join(' · ')||null };
   });
