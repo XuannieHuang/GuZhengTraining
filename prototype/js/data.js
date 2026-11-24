@@ -7,7 +7,7 @@ let PLAN_PRICE = {'季繳':10000,'月繳':3500};
 let ME = '';
 let MY_EMAIL = '';
 let ALLOWED = [];   // 白名單 [{email,note}]
-let REPORTS = { payments:null, month:'' };
+let REPORTS = { payments:null, month:'' };   // lastCount 是「最後一次盤點日」，進報表時才載
 let ui = { screen:'login', tab:null, search:'', modal:null, loginMsg:'', rentTab:'active', showInact:false, evFilter:'all', evSearch:'' };
 
 /* ---------- Supabase 欄位 <-> 畫面欄位 對應 ---------- */
@@ -180,3 +180,11 @@ async function logout(){ await sb.auth.signOut(); DB={teachers:[],students:[],re
 let toastT;
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+
+/* 報表那張課本卡要用的「最後盤點日」。沒盤過就是 null，讀失敗也當作沒盤過。 */
+async function loadLastCount(){
+  const { data, error } = await sb.from('book_moves')
+    .select('move_date').eq('kind','盤點').order('move_date',{ascending:false}).limit(1);
+  REPORTS.lastCount = (error || !data || !data.length) ? null : data[0].move_date;
+  render();
+}

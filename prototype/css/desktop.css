@@ -305,3 +305,12 @@
   /* 數量是唯讀顯示，跟輸入框對齊 */
   #side .sheet .f-att .bqty { padding-top: 6px; }
 }
+
+@media (min-width: 1024px) {
+  /* 盤點：整頁一張表的感覺，上限寬度跟其他清單一致 */
+  #app > main .chk-card:has(.st-row) { max-width: 820px; }
+  main:has(.st-row) .check-group { max-width: 820px; }
+  .st-bar { max-width: 820px; }
+  .st-done { flex: 0 0 auto; padding: 11px 20px; }
+  .st-bar .st-date { margin-right: auto; }
+}

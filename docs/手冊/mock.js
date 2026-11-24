@@ -14,7 +14,13 @@
      用真的 new Date() 的話，每過一天所有相對日期都會跟著移動 ——
      手冊截圖隔幾天重拍就全部不一樣，也沒辦法拿前後兩次比對來確認版面有沒有被改到。 */
   const NOW = new Date('2026-11-24T00:00:00');
-  const T = (n) => { const d = new Date(NOW); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  // 用本地年月日組字串。toISOString() 會先轉成 UTC，
+  // UTC+8 的午夜在 UTC 是前一天，整組假日期會少一天。
+  const T = (n) => {
+    const d = new Date(NOW); d.setDate(d.getDate() + n);
+    const p = (x) => String(x).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  };
 
   const TEACHERS = [
     { id: 't1', name: '王美華', role: ' 主任', inst: ['古箏'], sort: 1, active: true },
@@ -118,6 +124,7 @@
       { id: 'h6', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-340) },
       { id: 'h7', student_id: 's1', billing: '月繳', periods: 1, amount: 3500, pay_date: T(-370) },
     ],
+    books: [],          // 寫入用（update/insert），清單本身是 paint() 直接塞的
     book_moves: [
       { id: 'm1', book_id: 'b1', kind: '進貨', move_date: T(-40), qty_before: 0,  qty_after: 12, note: '建檔初始數量' },
       { id: 'm2', book_id: 'b2', kind: '進貨', move_date: T(-40), qty_before: 0,  qty_after: 10, note: '建檔初始數量' },
@@ -158,9 +165,10 @@
     PLANS = PLAN_ROWS;
     PLAN_PRICE['季繳'] = 10000; PLAN_PRICE['月繳'] = 3500;
     ME = '管'; MY_EMAIL = 'demo@example.com';
-    REPORTS = { payments: PAYMENTS, month: NOW.toISOString().slice(0, 7) };
+    REPORTS = { payments: PAYMENTS, month: T(0).slice(0, 7), lastCount: T(-10) };
 
     ui.screen = q.get('v') || 'todo';
+    if (ui.screen === 'stocktake' && typeof openStocktake === 'function') { openStocktake(); return; }
     ui.tab = q.get('t') || 't1';
     ui.search = ''; ui.searchOpen = false; ui.modal = null; ui.smodal = null; ui.rmodal = null;
     render();

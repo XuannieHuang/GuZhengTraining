@@ -317,7 +317,10 @@ function deskSettingBooks(){
   const list=DB.books.slice().sort((a,b)=>
     (a.loc||'￿').localeCompare(b.loc||'￿') || a.name.localeCompare(b.name));
   const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
-      <button class="set-addbtn" onclick="openBook(null)">＋ 新增課本</button></div>`;
+      <span class="row" style="gap:8px">
+        ${list.length?`<button class="set-addbtn" onclick="openStocktake()">📋 盤點</button>`:''}
+        <button class="set-addbtn" onclick="openBook(null)">＋ 新增課本</button>
+      </span></div>`;
   if(!list.length) return head+`<div class="empty sm">尚未建立課本</div>`;
   let rows='', cur=null;
   list.forEach(b=>{

@@ -66,6 +66,7 @@ function booksSection(){
     (a.loc||'￿').localeCompare(b.loc||'￿') || a.name.localeCompare(b.name));
   const head=`<div class="set-head"><div class="section-title">課本（${list.length}）</div>
     <div class="row" style="gap:6px">
+      ${list.length?`<button class="set-addbtn" onclick="openStocktake()">📋 盤點</button>`:''}
       <button class="set-addbtn" onclick="openBook(null)">＋ 新增課本</button>
     </div></div>`;
   if(!list.length) return head+`<div class="empty sm">尚未建立課本</div>`;

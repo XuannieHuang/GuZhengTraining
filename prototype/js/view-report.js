@@ -33,6 +33,7 @@ function reportView(){
       <div class="stat"><div class="v red">${dueCnt}</div><div class="l">本期即將完課待繳</div></div>
       <div class="stat"><div class="v">${rActive}</div><div class="l">器材租賃中</div></div>
       <div class="stat"><div class="v amber">${rOver}+${rSoon}</div><div class="l">器材逾期＋本月到期</div></div>
+      ${bookStatCard()}
     </div>`;
 
   // 各老師在學學生數
@@ -129,4 +130,20 @@ function reportView(){
     </div>
     <div class="meta set-note">匯出含全部紀錄；用 Excel／Google 試算表開即可。</div>`;
   return html;
+}
+
+/* 現況總覽的課本卡：庫存本數 ＋ 最後盤點日。
+   超過一個月沒盤點變琥珀色提醒；完全沒建課本就不顯示這張卡。 */
+function bookStatCard(){
+  if(!DB.books.length) return '';
+  const total = DB.books.reduce((s,b)=>s+(b.qty||0),0);
+  const last  = REPORTS.lastCount;            // undefined = 還沒載，null = 沒盤過
+  let sub = '尚未盤點', stale = true;
+  if(last){
+    const days = Math.round((Date.now() - new Date(last).getTime()) / 86400000);
+    stale = days > 31;
+    sub = '最後盤點 ' + fmtDate(last);
+  }else if(last===undefined){ sub='讀取中…'; stale=false; }
+  return `<div class="stat"><div class="v ${stale?'amber':''}">${total}</div>
+    <div class="l">課本庫存（本）<span class="note-sub">${sub}</span></div></div>`;
 }

@@ -82,6 +82,9 @@ SHOTS = [
     ('課本-4-紀錄',         'v=setting&m=book&act=logpane2',    1440, 820),
     ('課本-5-手機',         'v=setting&m=book',                  500, 1080),
 
+    ('課本-6-盤點',         'v=stocktake',                      1440, 760),
+    ('課本-7-盤點-手機',     'v=stocktake',                       500, 1000),
+
     ('11-筆電-1280',        'v=check&m=student',       1280,  820),
     ('12-縮放125-1183',      'v=check&m=student',       1183,  820),
     ('13-窄桌機-1024',      'v=check&m=student',       1024,  800),

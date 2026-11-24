@@ -8,7 +8,7 @@ function render(){
   const rentSoon = DB.rentals.filter(r=>rentalState(r)==='soon').length;
   const rentAlert = rentOver + rentSoon;
   const desk = isDesk();
-  const titles={todo:'本期待辦',check:'上課核對',rental:'器材租借',report:'報表',events:'事件修正',setting:'設定'};
+  const titles={todo:'本期待辦',check:'上課核對',rental:'器材租借',report:'報表',events:'事件修正',stocktake:'課本盤點',setting:'設定'};
   const title = titles[ui.screen]||'';
   const subHtml = ui.screen==='todo'
     ? `<span class="tdot"></span>本期即將完課 ${dueCount} 位`
@@ -36,9 +36,10 @@ function render(){
       <h1>${title}</h1>
       ${subHtml?`<div class="sub">${subHtml}</div>`:''}
     </header>
-    <main>${ ui.screen==='todo'?todoView() : ui.screen==='check'?checkView() : ui.screen==='rental'?rentalView() : ui.screen==='report'?reportView() : ui.screen==='events'?eventsView() : settingView() }</main>
+    <main>${ ui.screen==='todo'?todoView() : ui.screen==='check'?checkView() : ui.screen==='rental'?rentalView() : ui.screen==='report'?reportView() : ui.screen==='events'?eventsView() : ui.screen==='stocktake'?stocktakeView() : settingView() }</main>
     <nav>${navHtml}</nav>`;
   if(ui.screen==='check') bindCheck();
+  if(ui.screen==='stocktake') bindStock();
   if(desk){
     if(ui.screen==='report') groupReportSections(app.querySelector('main'));
     mountSide(app);                                   // 右欄（彈窗的掛載點）要接回來
@@ -48,7 +49,9 @@ function go(s){
   // 桌機的分頁一直點得到（手機被彈窗遮罩蓋住），
   // 換頁前要把右欄關掉，不然上一頁的詳情會留在那裡。
   if(isDesk()) closeSidePanels();
-  ui.screen=s; render(); if(s==='report' && REPORTS.payments===null) loadReportData();
+  ui.screen=s; render();
+  if(s==='report' && REPORTS.payments===null) loadReportData();
+  if(s==='report' && REPORTS.lastCount===undefined) loadLastCount();
 }
 
 /* ---------- 全域匯出（供 inline onclick 使用） ---------- */
@@ -58,6 +61,8 @@ window.openPay=openPay; window.closePay=closePay; window.confirmPay=confirmPay;
 window.setPlan=setPlan; window.setPeriods=setPeriods; window.logout=logout; window.ui=ui;
 window.googleLogin=googleLogin; window.addAllowed=addAllowed; window.removeAllowedEmail=removeAllowedEmail;
 window.setAmt=setAmt;
+window.openStocktake=openStocktake; window.finishStocktake=finishStocktake;
+window.setStockCount=setStockCount; window.bindStock=bindStock;
 window.openBook=openBook; window.bfield=bfield; window.bPane=bPane; window.closeBook=closeBook;
 window.saveBook=saveBook; window.deleteBook=deleteBook; window.stockIn=stockIn;
 window.toggleStockBox=toggleStockBox; window.bStockTotal=bStockTotal; window.pickBookPhoto=pickBookPhoto;

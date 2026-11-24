@@ -5,8 +5,7 @@ function eventsView(){
   const f=ui.evFilter||'all';
   const fchip=(v,l)=>`<div class="chipbtn ${f===v?'sel':''}" onclick="setEvFilter('${v}')">${l}</div>`;
   return `<div class="ev-top">
-      <button class="ev-back" onclick="go('report')">‹ 返回</button>
-      <div class="section-title">✎ 事件修正</div>
+      <button class="ev-back" onclick="go('report')">‹ 返回報表</button>
     </div>
     <div class="chips ev-filter">${fchip('all','全部')}${fchip('pay','💲 繳費')}${fchip('rent','🎻 租箏')}</div>
     <input class="searchbox" placeholder="🔍 搜尋學生／承租人姓名" value="${ui.evSearch||''}" oninput="setEvSearch(this.value)" oncompositionend="setEvSearch(this.value)">

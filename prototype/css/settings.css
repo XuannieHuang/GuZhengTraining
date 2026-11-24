@@ -32,3 +32,20 @@
 .bphoto-btn input{display:none;}
 .bphoto-del{border:0; background:none; padding:8px 4px; font:inherit; font-size:12.5px;
   color:var(--red); text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
+
+/* ── 盤點 ── */
+.st-bar{display:flex; align-items:flex-end; gap:10px; margin:0 2px 12px;}
+.st-date{flex:0 0 auto; font-size:12px; color:var(--muted);}
+.st-date .inp{margin-top:4px; width:auto; min-width:150px;}
+.st-done{flex:1 1 auto; white-space:nowrap;}
+.st-row{display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-bottom:1px solid var(--line);}
+.st-row:last-child{border-bottom:0;}
+.st-row.diff{background:#fffbeb;}
+.st-row .grow{min-width:0;}
+.st-row .name{font-size:15px; font-weight:600;}
+.st-book{flex:0 0 auto; font-size:12px; color:var(--muted); white-space:nowrap;}
+.st-book b{font-size:15px; color:var(--ink); font-variant-numeric:tabular-nums;}
+.st-row .num{flex:0 0 auto;}
+.st-diff{flex:0 0 42px; text-align:right; font-size:15px; font-weight:800;
+  font-variant-numeric:tabular-nums;}
