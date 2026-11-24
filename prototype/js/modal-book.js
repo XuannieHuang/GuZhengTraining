@@ -112,8 +112,8 @@ function renderBookModal(){
         <div id="blocsug">${locSug()}</div></div>
       <div class="field f-photo"><label>封面</label>
         <div class="bphoto">${bookThumb(m,'big')}
-          <label class="bphoto-btn">${m.photo?'換一張':'拍照／選檔'}
-            <input type="file" accept="image/*" capture="environment" onchange="pickBookPhoto(this)"></label>
+          <label class="bphoto-btn">${m.photo?'換一張':'拍照或從相簿選'}
+            <input type="file" accept="image/*" onchange="pickBookPhoto(this)"></label>
           ${m.photo?`<button class="bphoto-del" onclick="bfield('photo','')">移除</button>`:''}
         </div></div>
       ${m.isNew?'':`<div class="field f-att"><label>數量</label><div class="bqty">${m.qty||0}</div>
